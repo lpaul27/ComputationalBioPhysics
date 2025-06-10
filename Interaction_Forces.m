@@ -81,8 +81,8 @@ end
 % r_con = zeros(NumCells, 1); %receptor concentration
 % l_con = zeros(NumCells, 1); %ligand concentration
 
-Ri = Cradius(row);
-Rj = Cradius(col);
+Ri = Cradius(col);
+Rj = Cradius(row);
 Rij = dist_btw_cell(index);
 
 % calculate vertical overlap based on supplementary paper
@@ -101,16 +101,16 @@ vert_overlap = sqrt(term1 - term2)./Rij;
 
 Fa =  adh * vert_overlap * 0.5 * (1*1+1*1);
 
-Fxa = Fa .* cos(theta_sep);
-Fya = Fa .* sin(theta_sep);
+Fxa = Fa .* cos(-theta_sep);
+Fya = Fa .* sin(-theta_sep);
 
 % Net force calculations
-for i = 1:length(row)
+for i = 1:length(col)
     % Loop to determine the net force exerted onto each cell
-    j = row(i);
+    j = col(i);
 
-    Fx(j) = Fx(j) + F_rep_x(i) - Fxa(i);
-    Fy(j) = Fy(j) + F_rep_y(i) - Fya(i);
+    Fx(j) = Fx(j) + F_rep_x(i) + Fxa(i);
+    Fy(j) = Fy(j) + F_rep_y(i) + Fya(i);
 end
 
 

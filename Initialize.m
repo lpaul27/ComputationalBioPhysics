@@ -7,7 +7,7 @@
 
 function [x, y, vx, vy, Cradius, ang] = Initialize()
 
-global lbox velsRange NumCells R_boundary Cell_radius
+global lbox velsRange NumCells R_boundary Cell_radius vels_std
 
 % Initialization of variables
 Cradius = zeros(NumCells, 1);
@@ -40,9 +40,12 @@ for cells = 1:NumCells
     % Returns in cartesian components
     x(cells, 1) = lbox/2 + r(cells,1) * cos(theta(cells, 1));
     y(cells, 1) = lbox/2 + r(cells,1) * sin(theta(cells, 1));
+    %x(cells,1)=lbox/2+rand(1,1)+2.5;
+    %y(cells,1)=lbox/2+rand(1,1)+2.5;
+
 
     % Cell speed about normal distribution
-    speed(cells, 1) = randgaussrad(velsRange, 0.1);
+    speed(cells, 1) = randgaussrad(velsRange, vels_std);
 
     %Split componentwise
     vx(cells,1)= speed(cells, 1)*cos(ang(cells,1));
