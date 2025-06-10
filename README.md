@@ -1,5 +1,5 @@
 # Computational Modeling of Cell Proliferation under an external electric field  
-## Lucas Paul  
+### Lucas Paul  
 ## Summer 2025 Research Internship  
 ## Whitworth University  
 
