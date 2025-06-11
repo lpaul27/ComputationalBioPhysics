@@ -2,8 +2,8 @@
 ## Whitworth University  
 ## M.J. Murdock Charitable Trust Grant   
 
-** Lucas Paul **    
-** Summer 2025 **  
+**Lucas Paul**    
+**Summer 2025**  
 
 
 ### Project Outline 
