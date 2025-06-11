@@ -37,7 +37,7 @@ for i = 1:NumCells
     y(i,1) = y_old(i,1) + (vy_old(i,1) + FyG(i,1))*dt;    
     
     %Angular noise term
-    angNatural(i, 1) = mean(vel_ang(i, 1)+neighborWeight*neibAng(i,1))/(1+neighborWeight) +eta*(rand()-0.5)*pi;
+    angNatural(i, 1) = mean(vel_ang(i, 1)+neighborWeight*neibAng(i,1)/(1+neighborWeight)) +eta*(rand()-0.5)*pi;
     %angNatural(i, 1) = (vel_ang(i, 1)+neighborWeight * neibAng(i,1)) +eta*(rand()-0.5)*pi;
 
     %Update of velocity component based on a random distribution of likely
