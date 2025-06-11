@@ -58,17 +58,22 @@ Fa = zeros(length(row), 1);
 % motion term
 
 %find which cells are within interaction radius
-
-[maskR, maskC] = find(dist_btw_cell >0 & dist_btw_cell <= 2 * sum_cell_radii);
+[angleGrid] = meshgrid(vel_ang);
+[maskR, maskC] = find(dist_btw_cell >0 & dist_btw_cell <= sum_cell_radii);
+neibIndex = sub2ind(size(dist_btw_cell), maskR, maskC);
+intAng = angleGrid(neibIndex);
 
 % Loops to determine the average angle of cells within respective radius
-for i = 1:NumCells
-    inds = (maskR == i);
-    neighbors = maskC(inds);
-    neibAng(i) = mean(vel_ang(neighbors));
-    if(isnan(neibAng(i)))
-        neibAng(i) = 0;
+for i = 1:length(maskC)
+    j = maskC(i);
+    temp = find(maskC == j);
+    
+    if(numel(temp) == 1)
+        neibAng(j) = intAng(i);
     end
+    
+    neibAng(j) = intAng(i) + neib;
+    
 end
     % angle_sum = accumarray(maskR, vel_ang(maskC), [NumCells, 1], @sum, 0);
     % count = accumarray(maskR, 1, [NumCells, 1]);
@@ -80,7 +85,7 @@ end
 % Adhesion force calculation
 % r_con = zeros(NumCells, 1); %receptor concentration
 % l_con = zeros(NumCells, 1); %ligand concentration
-
+neibAng = zeros(NumCells,  1);
 Ri = Cradius(col);
 Rj = Cradius(row);
 Rij = dist_btw_cell(index);

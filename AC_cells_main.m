@@ -11,40 +11,35 @@ global NumCells dt lbox velsRange eta gamma neighborWeight k R_boundary Ex_stren
     c_rec c_lig adh adh_sd runTime vels_std   
 
 %% Domain Parameters
-NumCells = 50;             % number of cells in simulation
-velsRange = 0.0;           % initial velocity param center point
-vels_std = 0;
+NumCells = 10;              % number of cells in simulation
+velsRange = 0.0;            % initial velocity param center point
+vels_std = 0;               % standard deviation of velocity initialization
 runTime = 150;              % total runTime of simulation
 lbox = 150;                 % size of the box particles are confined to
 R_boundary = lbox/8;        % Sample domain size for cells to begin
 
 %% Cell-cell parameters
 Cell_radius = 2;            % fixed cell radius
-k = 0.1;                    % constant in force calculation (~elasticity)
-eta = 0.1;                 % noise strength
+k = 0.3;                    % constant in force calculation (~elasticity)
+eta = 0.1;                  % noise strength
 gamma = 10;                 % friction factor
-neighborWeight = 0.1;       % group movement weighting
+neighborWeight = 0;       % group movement weighting
 c_rec = 0.9;                % mean receptor concentration (noralized)
 c_lig = 0.9;                % mean ligand concentration (normalized)
-adh = 0.01;                % adhesive coefficient
+adh = 0.1;                 % adhesive coefficient
 adh_sd = 0.2;               % adhesion param standard deviation
 
 %% Cell-Field parameters
-Ex_strength = 0;            % x-component of electric field strength
+Ex_strength = 0.0014;            % x-component of electric field strength
 Ey_strength = 0;            % y-component of electric field strength
 
 %% Other parameters
-MASS = 1;                   % mass of cell
 time = 0;                   % time 
 dt = 1;                     % time step 
-dim = 2;                    % number of dimsensions in system (2D)
 
 %% Initialization of Variables
 % Preallocates values for optimal computation 
 
-init_radius = zeros(NumCells, 1);       % initial Radius of each cell
-coords = zeros(NumCells, dim);          % coords in cartesian
-velocity = zeros(NumCells, dim);        % velocity vector in component form
 x_time = zeros(runTime, NumCells);      % vector of x position for each step
 y_time = zeros(runTime, NumCells);      % vector of y position for each step
 timer = zeros(runTime, 3);              % Timer to keep track of computational efficiency
@@ -80,20 +75,25 @@ for time = 1:runTime
     y_time(time, :) = y(:,1);
 
     %% Call to force update functions (cell-cell & cell-field)
-    CCtimer = tic;              % timer #1 for cell-cell interaction function
+    % cell-cell force function
+    CCtimer = tic;                                                          % begin cell-cell timer                   
     [Fx, Fy, neibAng] = Interaction_Forces(x, y, Cradius, vel_ang);
-    timer(time, 1) = toc(CCtimer);
-    tic;
+    timer(time, 1) = toc(CCtimer);                                          % end cell-cell timer
+ 
+    % cell-field force function
+    CFtimer = tic;                                                          % begin cell-field timer
     [EF_x, EF_y] = Electric_Force(Cradius, x, y, u, v, X, Y);
-    timer(time, 2) = toc;
-    tic;
+    timer(time, 2) = toc(CFtimer);                                          % end cell-field timer
+    
     %Calculate net force with respective weightings
+    Steptimer = tic;                                                        % begin step update timer
     Fx_net = Fx + EF_x;
     Fy_net = Fy + EF_y;
+
     %Call to step update function
     [x, y, vx, vy, Cradius] = Step_Update(x, y, vx, vy, Cradius, Fx_net, Fy_net, neibAng);
     vel_ang = atan2(vy,vx);
-    timer(time,3) = toc;
+    timer(time,3) = toc(Steptimer);                                         % end step update timer
 
     %AC Field parameter: check time to reset field by modulo
     %Check for mitosis
@@ -121,9 +121,14 @@ for time = 1:runTime
         hold on;
         drawnow
         hold on
-end
 
-
+end % end time loop
+%% Cell position track graph
+% uncomment for position tracker
+%     figure
+%     plot(x_time, y_time, 'color', [0,0,0])
+%     xlabel('x position')
+%     ylabel('y position')
 
 
 
