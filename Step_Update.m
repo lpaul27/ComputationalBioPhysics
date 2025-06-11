@@ -1,50 +1,52 @@
-% System State function
-% Updates what happens during each iteration for the system
+% Iteration update of parameters for function
 
-% Inputs: [Cell(i)](t), [Position(x,y)(i)](t), theta(t), vx(t), vy(t), Electric field strength (E(t)), total cells
-% Outputs: [Cell(i)](t+1), [Position(x,y)(i)](t+1), theta(t+1), vx(t+1), vy(t+1), Electric field strength (E(t+1))
+% Inputs: x(t),y(t) // vx(t),vy(t) // radius(t) // Fx(t),Fy(t) // alignment angle(t) 
+% Outputs: x(t+1), y(t+1) // vx(t+1), vy(t+1) // radius(t+1)
 
-function [x, y, vx, vy, Cradius] = Step_Update(x_old, y_old, vx_old, vy_old, Cradius, Fx, Fy, neibAng)
-global NumCells dt eta gamma neighborWeight velsRange
+function [xf, yf, vxf, vyf, Cradius] = Step_Update(x0, y0, vx0, vy0, Cradius, Fx, Fy, neibAngAvg)
 
+% Constant parameters used
+global NumCells dt eta gamma neighborWeight vels_med
 
+% frictionized force term
 FxG = Fx ./ gamma;
-FyG = Fy ./ gamma; 
+FyG = Fy ./ gamma;
 
-% Initialization of variables
-vx = zeros(NumCells,1);
-vy = zeros(NumCells,1);
-vx0 = zeros(NumCells, 1);
-vy0 = zeros(NumCells, 1);
+%% Initialization of variables
+% preallocated for speed
+vxf = zeros(NumCells,1);
+vyf = zeros(NumCells,1);
+vxNat = zeros(NumCells, 1);
+vyNat = zeros(NumCells, 1);
 angNatural = zeros(NumCells, 1);
 velocity_mag = zeros(NumCells, 1);
 Cradius_new = zeros(NumCells, 1);
-x = zeros(NumCells, 1);
-y = zeros(NumCells, 1);
+xf = zeros(NumCells, 1);
+yf = zeros(NumCells, 1);
 
-% Initialize angles outside of loop for speed
-%vel_ang = atan2(vy_old+FyG,vx_old+FxG);
-
+%% Loop for updating the values of cell
 for i = 1:NumCells
+    
+    %%  Position Update
+    %       Equation of position
+    %       xf = x0 + (vx0)*dt
+    %       yf = y0 + (vy0)*dt
 
-    x(i,1) = x_old(i,1) + (vx_old(i,1) )*dt; 
-    y(i,1) = y_old(i,1) + (vy_old(i,1) )*dt;
-
-    % Iteration loop for updating position and velocity of each cell
-   
-    % Update cell radius %% UNUSED
-    % Allows for future implimentation
-    %Cradius_new(i, 1) = Cradius(i, 1); 
-    angNatural(i,1) = neibAng(i,1) + eta * (rand() - 0.5)*pi;
-    vx0(i,1) = velsRange * cos(angNatural(i,1));
-    vy0(i,1) = velsRange * sin(angNatural(i,1));
+    xf(i,1) = x0(i,1) + (vx0(i,1) )*dt; 
+    yf(i,1) = y0(i,1) + (vy0(i,1) )*dt;
+    
+    %% Velocity update
+    % Natural angle: angle of self and friends, influenced by noise
+    angNatural(i,1) = neibAngAvg(i,1) + eta * (rand() - 0.5)*pi;
+    
+    % natural velocity of cell (excludes field
+    vx0(i,1) = vels_med * cos(angNatural(i,1));
+    vy0(i,1) = vels_med * sin(angNatural(i,1));
     
     % Updating position via kinematic equation
     %x(i,1) = x_old(i,1) + (vx_old(i,1) + FxG(i,1))*dt; 
     %y(i,1) = y_old(i,1) + (vy_old(i,1) + FyG(i,1))*dt;
 
-
-    
     %Angular noise term
 %     if(isnan(neibAng(i,1)))
 %          angNatural(i, 1) = (vel_ang(i, 1) +eta*(rand()-0.5)*pi);
@@ -67,7 +69,7 @@ for i = 1:NumCells
 
     % New velocity vector based on how interaction forces affected angles
     % (componentwise)
-    vx(i, 1) = (vx0(i,1) + FxG(i,1))* dt; % x component 
-    vy(i, 1) = (vy0(i,1) + FyG(i,1))* dt;% y component
+    vxf(i, 1) = (vxNat(i,1) + FxG(i,1))* dt; % x component 
+    vyf(i, 1) = (vyNat(i,1) + FyG(i,1))* dt;% y component
 end
 end
