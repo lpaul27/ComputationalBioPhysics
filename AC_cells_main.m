@@ -11,7 +11,7 @@ global NumCells dt lbox velsRange eta gamma neighborWeight k R_boundary Ex_stren
     c_rec c_lig adh adh_sd runTime vels_std   
 
 %% Domain Parameters
-NumCells = 10;              % number of cells in simulation
+NumCells = 50;              % number of cells in simulation
 velsRange = 0.15;            % initial velocity param center point
 vels_std = 0.03;               % standard deviation of velocity initialization
 runTime = 150;              % total runTime of simulation
@@ -21,20 +21,19 @@ R_boundary = lbox/8;        % Sample domain size for cells to begin
 %% Cell-cell parameters
 Cell_radius = 2;            % fixed cell radius
 k = 0.3;                    % constant in force calculation (~elasticity)
-eta = 0.05;                  % noise strength
+eta = 0.;                  % noise strength
 gamma = 10;                 % friction factor
-neighborWeight = 0.01;       % group movement weighting
+neighborWeight = 1;       % group movement weighting
 c_rec = 0.9;                % mean receptor concentration (noralized)
 c_lig = 0.9;                % mean ligand concentration (normalized)
-adh = 0.2;                 % adhesive coefficient
+adh = 0.;                 % adhesive coefficient
 adh_sd = 0.1;               % adhesion param standard deviation
 
 %% Cell-Field parameters
-Ex_strength = 0;            % x-component of electric field strength
+Ex_strength = 0.0;            % x-component of electric field strength
 Ey_strength = 0;            % y-component of electric field strength
 
 %% Other parameters
-time = 0;                   % time 
 dt = 1;                     % time step 
 
 %% Initialization of Variables
@@ -73,7 +72,10 @@ for time = 1:runTime
     % Stores current position for time step
     x_time(time, :) = (x(:, 1));
     y_time(time, :) = y(:,1);
-
+     if(mod(runTime/2, time) == 0)
+         Ex_strength = Ey_strength;
+         Ey_strength = Ex_strength;
+     end
     %% Call to force update functions (cell-cell & cell-field)
     % cell-cell force function
     CCtimer = tic;                                                          % begin cell-cell timer                   
@@ -121,7 +123,7 @@ for time = 1:runTime
         hold on;
         drawnow
         hold on
-
+    time = time + 1;
 end % end time loop
 %% Cell position track graph
 % uncomment for position tracker

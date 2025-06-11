@@ -5,7 +5,7 @@
 % Outputs: [Cell(i)](t+1), [Position(x,y)(i)](t+1), theta(t+1), vx(t+1), vy(t+1), Electric field strength (E(t+1))
 
 function [x, y, vx, vy, Cradius] = Step_Update(x_old, y_old, vx_old, vy_old, Cradius, Fx, Fy, neibAng)
-global NumCells dt eta gamma neighborWeight
+global NumCells dt eta gamma neighborWeight velsRange
 
 
 FxG = Fx ./ gamma;
@@ -37,16 +37,21 @@ for i = 1:NumCells
     y(i,1) = y_old(i,1) + (vy_old(i,1) + FyG(i,1))*dt;    
     
     %Angular noise term
-    angNatural(i, 1) = mean(vel_ang(i, 1)+neighborWeight*neibAng(i,1)/(1+neighborWeight)) +eta*(rand()-0.5)*pi;
-    %angNatural(i, 1) = (vel_ang(i, 1)+neighborWeight * neibAng(i,1)) +eta*(rand()-0.5)*pi;
+    if(isnan(neibAng(i,1)))
+         angNatural(i, 1) = (vel_ang(i, 1) +eta*(rand()-0.5)*pi);
+    end
+    %angNatural(i, 1) = mean(vel_ang(i, 1)+neighborWeight*neibAng(i,1)) +eta*(rand()-0.5)*pi;
+    angNatural(i, 1) = vel_ang(i, 1)+eta*(rand()-0.5)*pi;
 
     %Update of velocity component based on a random distribution of likely
     %directions
 
     % magnitude of vector for calculations with theta
-    velocity_mag(i, 1) = sqrt(vx_old(i, 1).^2+vy_old(i, 1).^2);
-    vx0(i,1) = velocity_mag(i,1) * cos(angNatural(i,1));
-    vy0(i,1) = velocity_mag(i,1) * sin(angNatural(i,1));
+%    velocity_mag(i, 1) = sqrt(vx_old(i, 1).^2+vy_old(i, 1).^2);
+%     vx0(i,1) = velocity_mag(i,1) * cos(angNatural(i,1));
+%     vy0(i,1) = velocity_mag(i,1) * sin(angNatural(i,1));
+      vx0(i,1) = velsRange * cos(angNatural(i,1));
+      vy0(i,1) = velsRange * sin(angNatural(i,1));
 
     % New velocity vector based on how interaction forces affected angles
     % (componentwise)

@@ -10,6 +10,7 @@ function [u, v, X, Y] = EF_Grid_Init()
 
 global lbox Ex_strength Ey_strength
 % Electric field represented as a function of position
+clear u v X Y
 [X,Y] = meshgrid(0.1:2:lbox+0.5);
 
 % Case 1: Representation based on experimentalist's data:
