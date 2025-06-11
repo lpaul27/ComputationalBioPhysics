@@ -7,12 +7,12 @@ tStart = tic;
 % All parameters for model across all functions
 
 % Global parameters declaration
-global NumCells dt lbox velsRange eta gamma neighborWeight k R_boundary Ex_strength Ey_strength Cell_radius ...
+global NumCells dt lbox vels_med eta gamma neighborWeight k R_boundary Ex_strength Ey_strength Cell_radius ...
     c_rec c_lig adh adh_sd runTime vels_std alignment_radius  
 
 %% Domain Parameters
 NumCells = 100;                         % number of cells in simulation
-velsRange = 0.15;                       % initial velocity param center point
+vels_med = 0.15;                        % initial velocity param center point
 vels_std = 0.03;                        % standard deviation of velocity initialization
 runTime = 100;                          % total runTime of simulation
 lbox = 150;                             % size of the box particles are confined to
@@ -84,7 +84,7 @@ for time = 1:runTime
     %% Call to force update functions (cell-cell & cell-field)
     % cell-cell force function
     CCtimer = tic;                                                          % begin cell-cell timer                   
-    [Fx, Fy, neibAng] = Interaction_Forces(x, y, Cradius, vel_ang);
+    [Fx, Fy, neibAngAvg] = Interaction_Forces(x, y, Cradius, vel_ang);
     timer(time, 1) = toc(CCtimer);                                          % end cell-cell timer
  
     % cell-field force function
@@ -98,7 +98,7 @@ for time = 1:runTime
     Fy_net = Fy + EF_y;
 
     %Call to step update function
-    [x, y, vx, vy, Cradius] = Step_Update(x, y, vx, vy, Cradius, Fx_net, Fy_net, neibAng);
+    [x, y, vx, vy, Cradius] = Step_Update(x, y, vx, vy, Cradius, Fx_net, Fy_net, neibAngAvg);
     vel_ang = atan2(vy,vx);
     timer(time,3) = toc(Steptimer);                                         % end step update timer
 

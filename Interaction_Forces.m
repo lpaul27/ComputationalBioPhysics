@@ -6,7 +6,7 @@
 % Outputs: componentwise cell-cell interaction force, average angle of
 % neighbors within reaction radius
 
-function [Fx, Fy, neibAng] = Interaction_Forces(x, y, Cradius, vel_ang)
+function [Fx, Fy, neibAngAvg] = Interaction_Forces(x, y, Cradius, vel_ang)
 
 % Constants in function
 global k NumCells adh c_rec c_lig adh_sd alignment_radius
@@ -14,7 +14,6 @@ global k NumCells adh c_rec c_lig adh_sd alignment_radius
 %% Distance Computations
 % Define meshgrid to quantify overlap by grid
 [XX,YY] = meshgrid(x, y);
-
 sepx = XX.' - XX;
 sepy = YY.' - YY;
 
@@ -87,7 +86,7 @@ angleGridT = angleGrid';
 InteractionRadGrid = index_grid .* angleGridT;
     indexSum = sum(index_grid);
     AngleSum = sum(InteractionRadGrid);
-neibAng = AngleSum' ./indexSum';
+neibAngAvg = AngleSum' ./indexSum';
 
 
 % Adhesion force calculation
