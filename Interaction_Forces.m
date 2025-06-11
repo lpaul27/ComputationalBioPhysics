@@ -9,56 +9,56 @@
 function [Fx, Fy, neibAng] = Interaction_Forces(x, y, Cradius, vel_ang)
 
 % Constants in function
-global k NumCells adh c_rec c_lig adh_sd align_Radius
+global k NumCells adh c_rec c_lig adh_sd alignment_radius
       
-%Initialization of output variables
-
-% Define meshgrid to quantify overlap
-% Faster than for loop
+%% Distance Computations
+% Define meshgrid to quantify overlap by grid
 [XX,YY] = meshgrid(x, y);
 
 sepx = XX.' - XX;
 sepy = YY.' - YY;
 
 % Magnitude and angle of separation between all cells
-% Diagonal is zero b/c 'cell i' - 'cell i' overlap is always 0
+% *Diagonal is zero b/c 'cell i' - 'cell i' overlap is always 0*
 dist_btw_cell = sqrt(sepx.*sepx + sepy.*sepy);
 sep_angle = atan2(sepy,sepx);
 
-%Define a radius grid and perform similar operation to avoid loop for
-%computation speed
+% Define grid of cell radius 
 [RadGrid] = meshgrid(Cradius);
 sum_cell_radii = RadGrid.'+RadGrid;
 
-% Formula for overlap:
-% overlap_ij = (sum(radius_i + radius_j) - distance between cells)
-
+% computes overlap unfiltered by true overlap
 overlap_raw = sum_cell_radii - dist_btw_cell;
 
-%sub2ind allows extraction of data for only relevant cells without losing
-%which cell is overlapping
-
+%% Repulsive forces [vectorized]
+% Define grid based on filtered overlap
 logicalGrid = overlap_raw > 0  & overlap_raw < sum_cell_radii;
 trueOverlap = overlap_raw.*logicalGrid;
 anglesep = sep_angle.*logicalGrid;
-%forx = (sum(-k *trueOverlap .* cos(anglesep),2));
-% fory = (sum(-k * trueOverlap .*sin(anglesep),2));
-forx = sum(k*trueOverlap.*(sepx./(dist_btw_cell+eye(NumCells))),2);
-fory = sum(k*trueOverlap.*(sepy./(dist_btw_cell+eye(NumCells))),2);
 
+% Calculate force of repulsion
+% Frx = (sum(-k *trueOverlap .* cos(anglesep),2));
+% Fry = (sum(-k * trueOverlap .*sin(anglesep),2));
+Frx = sum(k*trueOverlap.*(sepx./(dist_btw_cell+eye(NumCells))),2);
+Fry = sum(k*trueOverlap.*(sepy./(dist_btw_cell+eye(NumCells))),2);
 
-cellRij = dist_btw_cell.*logicalGrid;
-cellRi = logicalGrid.* RadGrid;
-cellRj = logicalGrid .* RadGrid';
-    term1 = (2.*cellRi.*cellRij).^2;
-    term2 = (cellRi.^2 - cellRj.^2 + cellRij.^2).^2;
-cell_vert_overlap = sqrt(term1 - term2)./cellRij;
-    cell_vert_overlap(isnan(cell_vert_overlap)) = 0;
-Fadhx =  (sum(adh * cell_vert_overlap .* 0.5 .* (1*1+1*1) .* cos(-anglesep)))';
-Fadhy = adh .* cell_vert_overlap * 0.5 * (1+1+1+1) .* sin(-anglesep);
+%% Adhesion Forces [vectorized]
+% Using similar logic to apply to adhesion
+cellRij = dist_btw_cell.*logicalGrid;                                       % center to center distance
+cellRi = logicalGrid.* RadGrid;                                             % radius of cell 'i'
+cellRj = logicalGrid .* RadGrid';                                           % radius of cell 'j'
+    term1 = (2.*cellRi.*cellRij).^2;                                        % For calculations
+    term2 = (cellRi.^2 - cellRj.^2 + cellRij.^2).^2;                        % For calculations
+cell_vert_overlap = sqrt(term1 - term2)./cellRij;                           %'lij' calculation
+    cell_vert_overlap(isnan(cell_vert_overlap)) = 0; % NaN --> 0
 
-Fx = Fadhx + forx;
-Fy = Fadhy + fory;
+% Calculate force of adhesion based on model
+Fax =  (sum(adh * cell_vert_overlap .* 0.5 .* (1*1+1*1) .* cos(-anglesep)))';
+Fay = adh .* cell_vert_overlap * 0.5 * (1+1+1+1) .* sin(-anglesep);
+
+% Calculate the net force
+Fx = Fax + Frx;
+Fy = Fay + Fry;
 
 % % [row, col] = find(overlap_raw > 0 & overlap_raw < sum_cell_radii);
 % % index = sub2ind(size(overlap_raw), row, col);
@@ -77,9 +77,12 @@ Fy = Fadhy + fory;
 % Use distance between cells to find the average angle of nearby cells for collective
 % motion term
 
-%find which cells are within interaction radius
+%% Collective motion angle term
+% find which cells are within interaction radius by defining grid of angles
 [angleGrid] = meshgrid(vel_ang);
-index_grid = (dist_btw_cell <= align_Radius);
+
+% index based on an interaction radius
+index_grid = (dist_btw_cell <= alignment_radius);
 angleGridT = angleGrid';
 InteractionRadGrid = index_grid .* angleGridT;
     indexSum = sum(index_grid);
