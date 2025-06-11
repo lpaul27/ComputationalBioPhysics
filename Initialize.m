@@ -45,7 +45,8 @@ for cells = 1:NumCells
 
 
     % Cell speed about normal distribution
-    speed(cells, 1) = randgaussrad(velsRange, vels_std);
+    %speed(cells, 1) = randgaussrad(velsRange, vels_std);
+    speed(cells,1) = velsRange;
 
     %Split componentwise
     vx(cells,1)= speed(cells, 1)*cos(ang(cells,1));

@@ -23,26 +23,38 @@ x = zeros(NumCells, 1);
 y = zeros(NumCells, 1);
 
 % Initialize angles outside of loop for speed
-vel_ang = atan2(vy_old,vx_old);
+%vel_ang = atan2(vy_old+FyG,vx_old+FxG);
 
 for i = 1:NumCells
+
+    x(i,1) = x_old(i,1) + (vx_old(i,1) )*dt; 
+    y(i,1) = y_old(i,1) + (vy_old(i,1) )*dt;
+
     % Iteration loop for updating position and velocity of each cell
    
     % Update cell radius %% UNUSED
     % Allows for future implimentation
     %Cradius_new(i, 1) = Cradius(i, 1); 
+    angNatural(i,1) = neibAng(i,1) + eta * (rand() - 0.5)*pi;
+    vx0(i,1) = velsRange * cos(angNatural(i,1));
+    vy0(i,1) = velsRange * sin(angNatural(i,1));
     
     % Updating position via kinematic equation
-    x(i,1) = x_old(i,1) + (vx_old(i,1) + FxG(i,1))*dt; 
-    y(i,1) = y_old(i,1) + (vy_old(i,1) + FyG(i,1))*dt;    
+    %x(i,1) = x_old(i,1) + (vx_old(i,1) + FxG(i,1))*dt; 
+    %y(i,1) = y_old(i,1) + (vy_old(i,1) + FyG(i,1))*dt;
+
+
     
     %Angular noise term
-    if(isnan(neibAng(i,1)))
-         angNatural(i, 1) = (vel_ang(i, 1) +eta*(rand()-0.5)*pi);
-    end
-    %angNatural(i, 1) = mean(vel_ang(i, 1)+neighborWeight*neibAng(i,1)) +eta*(rand()-0.5)*pi;
-    angNatural(i, 1) = vel_ang(i, 1)+eta*(rand()-0.5)*pi;
-
+%     if(isnan(neibAng(i,1)))
+%          angNatural(i, 1) = (vel_ang(i, 1) +eta*(rand()-0.5)*pi);
+%     else
+%         %angNatural(i, 1) = mean(vel_ang(i, 1)+neighborWeight*neibAng(i,1)/ ...
+%          %   (neighborWeight + 1))+eta*(rand()-0.5)*pi;
+%         %angNatural(i, 1) = mean(vel_ang(i, 1)+neighborWeight*neibAng(i,1))+eta*(rand()-0.5)*pi;
+%         angNatural(i, 1) = vel_ang(i, 1)+eta*(rand()-0.5)*pi;
+%     end
+   % angNatural(i,1) = neibAng(i,1) + eta * (rand() - 0.5)*pi;
     %Update of velocity component based on a random distribution of likely
     %directions
 
@@ -50,8 +62,8 @@ for i = 1:NumCells
 %    velocity_mag(i, 1) = sqrt(vx_old(i, 1).^2+vy_old(i, 1).^2);
 %     vx0(i,1) = velocity_mag(i,1) * cos(angNatural(i,1));
 %     vy0(i,1) = velocity_mag(i,1) * sin(angNatural(i,1));
-      vx0(i,1) = velsRange * cos(angNatural(i,1));
-      vy0(i,1) = velsRange * sin(angNatural(i,1));
+    %  vx0(i,1) = velsRange * cos(angNatural(i,1));
+    %  vy0(i,1) = velsRange * sin(angNatural(i,1));
 
     % New velocity vector based on how interaction forces affected angles
     % (componentwise)
