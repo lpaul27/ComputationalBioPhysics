@@ -11,24 +11,24 @@ global NumCells dt lbox vels_med eta gamma neighborWeight k R_boundary Ex_streng
     c_rec c_lig adh adh_sd runTime vels_std alignment_radius  
 
 %% Domain Parameters
-NumCells = 100;                         % number of cells in simulation
+NumCells = 50;                         % number of cells in simulation
 vels_med = 0.15;                        % initial velocity param center point
 vels_std = 0.03;                        % standard deviation of velocity initialization
-runTime = 100;                          % total runTime of simulation
+runTime = 150;                          % total runTime of simulation
 lbox = 150;                             % size of the box particles are confined to
 R_boundary = lbox/8;                    % Sample domain size for cells to begin
 
 %% Cell-cell parameters
 Cell_radius = 2;                        % fixed cell radius
 k = 0.3;                                % constant in force repulsion calculation (~elasticity)
-eta = 0;                                % noise strength
+eta = 0.1;                             % noise strength
 gamma = 10;                             % friction factor
 neighborWeight = 1;                     % group movement weighting
 c_rec = 0.9;                            % mean receptor concentration (noralized)
 c_lig = 0.9;                            % mean ligand concentration (normalized)
-adh = 0;                                % adhesive coefficient
-adh_sd = 0.005;                         % adhesion param standard deviation
-alignment_radius = 2*Cell_radius;       % collective motion interaction radius
+adh = 1e-3;                             % adhesive coefficient
+adh_sd = 5e-4;                         % adhesion param standard deviation
+alignment_radius = 1.5*Cell_radius;     % collective motion interaction radius
 
 %% Cell-Field parameters
 Ex_strength = 0.0;                      % x-component of electric field strength
@@ -125,11 +125,11 @@ for time = 1:runTime
         drawnow
         hold on
 end % end time loop
-
+toc(tStart)
 %% Cell position track graph
 % uncomment for position tracker
 %     figure
-%     plot(x_time, y_time, 'color', [0,0,0])
+%     plot((x_time - x_time(1)), (y_time - y_time(1)))
 %     xlabel('x position')
 %     ylabel('y position')
 

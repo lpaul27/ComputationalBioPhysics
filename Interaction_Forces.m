@@ -14,8 +14,8 @@ global k NumCells adh c_rec c_lig adh_sd alignment_radius
 %% Distance Computations
 % Define meshgrid to quantify overlap by grid
 [XX,YY] = meshgrid(x, y);
-sepx = XX.' - XX;
-sepy = YY.' - YY;
+sepx = XX' - XX;
+sepy = YY - YY';
 
 % Magnitude and angle of separation between all cells
 % *Diagonal is zero b/c 'cell i' - 'cell i' overlap is always 0*
@@ -36,10 +36,12 @@ trueOverlap = overlap_raw.*logicalGrid;
 anglesep = sep_angle.*logicalGrid;
 
 % Calculate force of repulsion
-% Frx = (sum(-k *trueOverlap .* cos(anglesep),2));
-% Fry = (sum(-k * trueOverlap .*sin(anglesep),2));
 Frx = sum(k*trueOverlap.*(sepx./(dist_btw_cell+eye(NumCells))),2);
 Fry = sum(k*trueOverlap.*(sepy./(dist_btw_cell+eye(NumCells))),2);
+
+% Frx = (sum(-k *trueOverlap .* cos(anglesep),2));
+% Fry = (sum(-k * trueOverlap .*sin(anglesep),2));
+
 
 %% Adhesion Forces [vectorized]
 % Using similar logic to apply to adhesion
@@ -52,8 +54,8 @@ cell_vert_overlap = sqrt(term1 - term2)./cellRij;                           %'li
     cell_vert_overlap(isnan(cell_vert_overlap)) = 0; % NaN --> 0
 
 % Calculate force of adhesion based on model
-Fax =  (sum(adh * cell_vert_overlap .* 0.5 .* (1*1+1*1) .* cos(-anglesep)))';
-Fay = adh .* cell_vert_overlap * 0.5 * (1+1+1+1) .* sin(-anglesep);
+Fax =  (sum(adh * cell_vert_overlap .* 0.5 .* (1*1+1*1) .* cos(anglesep)))';
+Fay = (sum(adh .* cell_vert_overlap * 0.5 * (1+1+1+1) .* sin(anglesep)))';
 
 % Calculate the net force
 Fx = Fax + Frx;

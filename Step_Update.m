@@ -69,7 +69,7 @@ for i = 1:NumCells
 
     % New velocity vector based on how interaction forces affected angles
     % (componentwise)
-    vxf(i, 1) = (vxNat(i,1) + FxG(i,1))* dt; % x component 
-    vyf(i, 1) = (vyNat(i,1) + FyG(i,1))* dt;% y component
+    vxf(i, 1) = (vx0(i,1) + FxG(i,1))* dt; % x component 
+    vyf(i, 1) = (vy0(i,1) + FyG(i,1))* dt;% y component
 end
 end
