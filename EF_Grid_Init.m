@@ -17,8 +17,8 @@ global lbox runTime Field xphi yphi w ExMax EyMax
 
 % Discrete change in field direction
     if(time > (runTime / 2) && Field)
-        Ex_strength = EyMax;
-        Ey_strength = ExMax;
+        Ex_strength = -ExMax;
+        Ey_strength = -EyMax;
     else
         Ex_strength = ExMax;
         Ey_strength = EyMax;

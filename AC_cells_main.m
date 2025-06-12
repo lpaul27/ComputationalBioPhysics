@@ -14,8 +14,8 @@ global NumCells dt lbox vels_med eta gamma neighborWeight k R_boundary Ex_streng
 NumCells = 200;                         % number of cells in simulation
 vels_med = 0.15;                         % initial velocity param center point
 vels_std = 0.03;                        % standard deviation of velocity initialization
-runTime = 50;                           % total runTime of simulation
-lbox = 250;                             % size of the box particles are confined to
+runTime = 250;                           % total runTime of simulation
+lbox = 150;                             % size of the box particles are confined to
 R_boundary = lbox/8;                    % Sample domain size for cells to begin
 
 %% Cell-cell parameters
@@ -23,7 +23,7 @@ Cell_radius = 2;                        % fixed cell radius
 k = 0.2;                                % constant in force repulsion calculation (~elasticity)
 eta = 0.5;                              % noise strength
 gamma = 10;                             % friction factor
-mu = 0.6;                               % electrical mobility
+mu = 0.1;                               % electrical mobility
 neighborWeight = 1;                     % group movement weighting
 c_rec = 0.9;                            % mean receptor concentration (noralized)
 c_lig = 0.9;                            % mean ligand concentration (normalized)
@@ -44,7 +44,7 @@ yphi = 0;                               % y field offset
 
 %% Other parameters
 dt = 1;                                 % time step 
-time_control = (1:150)';
+time_control = (1:runTime)';
 
 %% Initialization of Variables
 % Preallocates values for optimal computation 
@@ -131,21 +131,21 @@ for time = 1:runTime
 %         hold on
 end % end time loop
 cosTheta = cos(theta_time);
-sumCellAngle = sum(cosTheta, 2);
+sumCellAngle = sum(cosTheta,2);
 directionality = sumCellAngle ./ NumCells;
 toc(tStart)
 %% Cell position track graph
 % uncomment for position tracker
-    figure
-    plot((x_time - x_time(1,:)), (y_time - y_time(1,:)))
-    xlabel('x position')
-    ylabel('y position')
+%     figure
+%     plot((x_time - x_time(1,:)), (y_time - y_time(1,:)))
+%     xlabel('x position')
+%     ylabel('y position')
 %% Directionality Graph
 % uncomment for directionality vs time
-%     figure
-%     plot(time_control, directionality)
-%     xlabel('Time (steps)')
-%     ylabel('Directionality')
+    figure
+    plot(time_control, directionality)
+    xlabel('Time (steps)')
+    ylabel('Directionality')
 
 
 
