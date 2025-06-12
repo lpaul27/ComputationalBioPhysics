@@ -11,7 +11,7 @@ global NumCells dt lbox vels_med eta gamma neighborWeight k R_boundary Ex_streng
     c_rec c_lig adh runTime vels_std alignment_radius Field xphi yphi w ExMax EyMax mu
 
 %% Domain Parameters
-NumCells = 200;                         % number of cells in simulation
+NumCells = 7000;                         % number of cells in simulation
 vels_med = 0.15;                         % initial velocity param center point
 vels_std = 0.03;                        % standard deviation of velocity initialization
 runTime = 250;                           % total runTime of simulation
@@ -80,7 +80,7 @@ timer = zeros(runTime, 3);              % Timer to keep track of computational e
 
 for time = 1:runTime
     [u, v, X, Y] = EF_Grid_Init(time);
-
+    
     % Stores current position for time step
     x_time(time, :) = (x(:, 1));
     y_time(time, :) = y(:,1);
@@ -136,16 +136,16 @@ directionality = sumCellAngle ./ NumCells;
 toc(tStart)
 %% Cell position track graph
 % uncomment for position tracker
-%     figure
-%     plot((x_time - x_time(1,:)), (y_time - y_time(1,:)))
-%     xlabel('x position')
-%     ylabel('y position')
+    figure
+    plot((x_time - x_time(1,:)), (y_time - y_time(1,:)))
+    xlabel('x position')
+    ylabel('y position')
 %% Directionality Graph
 % uncomment for directionality vs time
-    figure
-    plot(time_control, directionality)
-    xlabel('Time (steps)')
-    ylabel('Directionality')
+%     figure
+%     plot(time_control, directionality)
+%     xlabel('Time (steps)')
+%     ylabel('Directionality')
 
 
 
