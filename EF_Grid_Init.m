@@ -6,20 +6,24 @@
 % coordinates of field
 
 
-function [u, v, X, Y] = EF_Grid_Init()
+function [u, v, X, Y] = EF_Grid_Init(time)
 
-global lbox Ex_strength Ey_strength
+global lbox Ex_strength Ey_strength runTime
 % Electric field represented as a function of position
-clear u v X Y
+if(time > runTime / 2)
+    Ex_strength = 0;
+    Ey_strength = 0.014;
+end
 [X,Y] = meshgrid(0.1:2:lbox+0.5);
 
 % Case 1: Representation based on experimentalist's data:
-    % Uniform Electric Field and discontinuous change to opposite polarity
-    % at uniform time intervals
+% Uniform Electric Field and discontinuous change to opposite polarity
+% at uniform time intervals
 
 u=(Ex_strength)*ones(size(X));
 v= (Ey_strength)* ones(size(Y));
 
 % Case 2: Representation based on a nonuniform distribution
-    % Representation based on position and given function
+% Representation based on position and given function
+
 end

@@ -8,29 +8,29 @@ tStart = tic;
 
 % Global parameters declaration
 global NumCells dt lbox vels_med eta gamma neighborWeight k R_boundary Ex_strength Ey_strength Cell_radius ...
-    c_rec c_lig adh adh_sd runTime vels_std alignment_radius  
+    c_rec c_lig adh runTime vels_std alignment_radius  
 
 %% Domain Parameters
-NumCells = 50;                          % number of cells in simulation
+NumCells = 200;                          % number of cells in simulation
 vels_med = 0.15;                        % initial velocity param center point
 vels_std = 0.03;                        % standard deviation of velocity initialization
-runTime = 10;                          % total runTime of simulation
+runTime = 500;                          % total runTime of simulation
 lbox = 150;                             % size of the box particles are confined to
 R_boundary = lbox/8;                    % Sample domain size for cells to begin
 
 %% Cell-cell parameters
 Cell_radius = 2;                        % fixed cell radius
 k = 0.3;                                % constant in force repulsion calculation (~elasticity)
-eta = 0.2;                             % noise strength
+eta = 0.1;                                % noise strength
 gamma = 10;                             % friction factor
 neighborWeight = 1;                     % group movement weighting
 c_rec = 0.9;                            % mean receptor concentration (noralized)
 c_lig = 0.9;                            % mean ligand concentration (normalized)
 adh = 1e-3;                             % adhesive coefficient
-alignment_radius = 1.5*Cell_radius;     % collective motion interaction radius
+alignment_radius = 2*Cell_radius;       % collective motion interaction radius
 
 %% Cell-Field parameters
-Ex_strength = 0.0;                      % x-component of electric field strength
+Ex_strength = 0.014;                    % x-component of electric field strength
 Ey_strength = 0.0;                      % y-component of electric field strength
 
 %% Other parameters
@@ -46,14 +46,14 @@ timer = zeros(runTime, 3);              % Timer to keep track of computational e
 %% Plotting Parameters
 % Parameters for live simulation visualization
 
-  cell=figure;
-  cell.WindowState = 'maximized';
-  axis([0 lbox 0 lbox])
-  a = get(gca,'XTickLabel');
-  set(gca,'XTickLabel',a,'fontsize',12);
-  axis('square')
-  hold on
-  skip_points = 14;
+%   cell=figure;
+%   cell.WindowState = 'maximized';
+%   axis([0 lbox 0 lbox])
+%   a = get(gca,'XTickLabel');
+%   set(gca,'XTickLabel',a,'fontsize',12);
+%   axis('square')
+%   hold on
+%   skip_points = 14;
 
 %% Initialization of System
 % Based on Monte Carlo initialization
@@ -63,23 +63,18 @@ timer = zeros(runTime, 3);              % Timer to keep track of computational e
 
 % Call to initialize the electric field to generate the desired electric
 % field
-[u, v, X, Y] = EF_Grid_Init();
+time = 1;
 
 %% Simulation loop
 % Time domain loop for simulation
 
 for time = 1:runTime
-
+    [u, v, X, Y] = EF_Grid_Init(time);
 
     % Stores current position for time step
     x_time(time, :) = (x(:, 1));
     y_time(time, :) = y(:,1);
 
-    %% Changing E-Field aspect (discete)
-    if(mod(runTime/2, time) == 0)
-        Ex_strength = Ey_strength;
-        Ey_strength = Ex_strength;
-    end
     %% Call to force update functions (cell-cell & cell-field)
     % cell-cell force function
     CCtimer = tic;                                                          % begin cell-cell timer                   
@@ -103,34 +98,34 @@ for time = 1:runTime
 
     %% Live Simulation visualization plot
     % commented out; code runs a live simulation of program
-        scale_efield = 2;
-        x_efield_plot = reshape(X,length(X)^2,1);
-        y_efield_plot = reshape(Y,length(Y)^2,1);
-        u_efield_plot = reshape(u,length(u)^2,1);
-        v_efield_plot = reshape(v,length(v)^2,1);
-        v_result = [vx vy];
-        v_result_norm = sqrt(diag(v_result * v_result'));
-    
-        cla
-        set(gcf,'doublebuffer','on')
-        hold on;
-        skip_nth =14;
-        quiver(x_efield_plot(1:skip_nth:end),y_efield_plot(1:skip_nth:end),scale_efield*u_efield_plot(1:skip_nth:end),scale_efield*v_efield_plot(1:skip_nth:end), 'Color', [1, 0., 0],   'LineWidth', 1., 'MaxHeadSize', 0.9);
-        hold on;
-        quiver(x,y,vx./(0.5*v_result_norm),vy./(0.5*v_result_norm), 'Color',[0, 0, 1], 'MarkerSize', 10, 'LineWidth', 1.5,  'AutoScale', 'off') ;
-        hold on;
-        circles(x, y, 1*ones(length(x),1), 'facecolor', [0.3010, 0.7450, 0.9330]);
-        hold on;
-        drawnow
-        hold on
+%         scale_efield = 2;
+%         x_efield_plot = reshape(X,length(X)^2,1);
+%         y_efield_plot = reshape(Y,length(Y)^2,1);
+%         u_efield_plot = reshape(u,length(u)^2,1);
+%         v_efield_plot = reshape(v,length(v)^2,1);
+%         v_result = [vx vy];
+%         v_result_norm = sqrt(diag(v_result * v_result'));
+%     
+%         cla
+%         set(gcf,'doublebuffer','on')
+%         hold on;
+%         skip_nth =14;
+%         quiver(x_efield_plot(1:skip_nth:end),y_efield_plot(1:skip_nth:end),scale_efield*u_efield_plot(1:skip_nth:end),scale_efield*v_efield_plot(1:skip_nth:end), 'Color', [1, 0., 0],   'LineWidth', 1., 'MaxHeadSize', 0.9);
+%         hold on;
+%         quiver(x,y,vx./(0.5*v_result_norm),vy./(0.5*v_result_norm), 'Color',[0, 0, 1], 'MarkerSize', 10, 'LineWidth', 1.5,  'AutoScale', 'off') ;
+%         hold on;
+%         circles(x, y, 1*ones(length(x),1), 'facecolor', [0.3010, 0.7450, 0.9330]);
+%         hold on;
+%         drawnow
+%         hold on
 end % end time loop
 toc(tStart)
 %% Cell position track graph
 % uncomment for position tracker
-%     figure
-%     plot((x_time - x_time(1)), (y_time - y_time(1)))
-%     xlabel('x position')
-%     ylabel('y position')
+    figure
+    plot((x_time - x_time(1,:)), (y_time - y_time(1,:)))
+    xlabel('x position')
+    ylabel('y position')
 
 
 
