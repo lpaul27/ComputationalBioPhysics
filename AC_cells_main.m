@@ -21,13 +21,13 @@ R_boundary = lbox/8;                    % Sample domain size for cells to begin
 %% Cell-cell parameters
 Cell_radius = 2;                        % fixed cell radius
 k = 0.3;                                % constant in force repulsion calculation (~elasticity)
-eta = 0.1;                             % noise strength
+eta = 0.05;                             % noise strength
 gamma = 10;                             % friction factor
 neighborWeight = 1;                     % group movement weighting
 c_rec = 0.9;                            % mean receptor concentration (noralized)
 c_lig = 0.9;                            % mean ligand concentration (normalized)
-adh = 1e-3;                             % adhesive coefficient
-adh_sd = 5e-4;                         % adhesion param standard deviation
+adh = 1e-4;                             % adhesive coefficient
+adh_sd = 5e-5;                         % adhesion param standard deviation
 alignment_radius = 1.5*Cell_radius;     % collective motion interaction radius
 
 %% Cell-Field parameters
