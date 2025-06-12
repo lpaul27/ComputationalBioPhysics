@@ -8,10 +8,6 @@ function [xf, yf, vxf, vyf, Cradius] = Step_Update(x0, y0, vx0, vy0, Cradius, Fx
 % Constant parameters used
 global NumCells dt eta gamma neighborWeight vels_med
 
-% frictionized force term
-FxG = Fx ./ gamma;
-FyG = Fy ./ gamma;
-
 % preallocated for speed
 vxf = zeros(NumCells,1);
 vyf = zeros(NumCells,1);
@@ -42,8 +38,8 @@ for i = 1:NumCells
 
     % New velocity vector based on how interaction forces affected angles
     % (componentwise)
-    vxf(i, 1) = (vxNat(i,1) + FxG(i,1))* dt; % x component 
-    vyf(i, 1) = (vyNat(i,1) + FyG(i,1))* dt;% y component
+    vxf(i, 1) = (vxNat(i,1) + Fx(i,1))* dt; % x component 
+    vyf(i, 1) = (vyNat(i,1) + Fy(i,1))* dt;% y component
 end % end loop
 end % end function
 

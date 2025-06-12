@@ -36,8 +36,8 @@ trueOverlap = overlap_raw.*logicalGrid;
 anglesep = sep_angle.*logicalGrid;
 
 % Calculate force of repulsion
-Frx = sum(k*trueOverlap.*(sepx./(dist_btw_cell+eye(NumCells))),2);
-Fry = sum(k*trueOverlap.*(sepy./(dist_btw_cell+eye(NumCells))),2);
+Frx = sum(-k*trueOverlap.*(sepx./(dist_btw_cell+eye(NumCells))),1)';
+Fry = sum(-k*trueOverlap.*(sepy./(dist_btw_cell+eye(NumCells))),1)';
 
 % Frx = (sum(-k *trueOverlap .* cos(anglesep),2));
 % Fry = (sum(-k * trueOverlap .*sin(anglesep),2));

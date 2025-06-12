@@ -8,39 +8,50 @@ tStart = tic;
 
 % Global parameters declaration
 global NumCells dt lbox vels_med eta gamma neighborWeight k R_boundary Ex_strength Ey_strength Cell_radius ...
-    c_rec c_lig adh runTime vels_std alignment_radius  
+    c_rec c_lig adh runTime vels_std alignment_radius Field xphi yphi w ExMax EyMax mu
 
 %% Domain Parameters
-NumCells = 200;                          % number of cells in simulation
-vels_med = 0.15;                        % initial velocity param center point
+NumCells = 200;                         % number of cells in simulation
+vels_med = 0.15;                         % initial velocity param center point
 vels_std = 0.03;                        % standard deviation of velocity initialization
-runTime = 500;                          % total runTime of simulation
-lbox = 150;                             % size of the box particles are confined to
+runTime = 50;                           % total runTime of simulation
+lbox = 250;                             % size of the box particles are confined to
 R_boundary = lbox/8;                    % Sample domain size for cells to begin
 
 %% Cell-cell parameters
 Cell_radius = 2;                        % fixed cell radius
-k = 0.3;                                % constant in force repulsion calculation (~elasticity)
-eta = 0.1;                                % noise strength
+k = 0.2;                                % constant in force repulsion calculation (~elasticity)
+eta = 0.5;                              % noise strength
 gamma = 10;                             % friction factor
+mu = 0.6;                               % electrical mobility
 neighborWeight = 1;                     % group movement weighting
 c_rec = 0.9;                            % mean receptor concentration (noralized)
 c_lig = 0.9;                            % mean ligand concentration (normalized)
-adh = 1e-3;                             % adhesive coefficient
+adh = 0;                                % adhesive coefficient
 alignment_radius = 2*Cell_radius;       % collective motion interaction radius
 
 %% Cell-Field parameters
-Ex_strength = 0.014;                    % x-component of electric field strength
-Ey_strength = 0.0;                      % y-component of electric field strength
+Field = 1;                              % Signals to time varying fields that field is on if 1
+ExMax = 0.14;                           % x field max
+EyMax = 0.0;                            % y field max
+
+% Sinusoidal parameters
+% f(t) = A sin(wt + o)                  % form
+w = pi / runTime;                       % angular frequency 
+xphi = 0;                               % x field offset
+yphi = 0;                               % y field offset
+
 
 %% Other parameters
 dt = 1;                                 % time step 
+time_control = (1:150)';
 
 %% Initialization of Variables
 % Preallocates values for optimal computation 
 
-x_time = zeros(runTime, NumCells);      % vector of x position for each step
-y_time = zeros(runTime, NumCells);      % vector of y position for each step
+x_time = zeros(runTime, NumCells);      % Matrix of x position for each step
+y_time = zeros(runTime, NumCells);      % Matrix of y position for each step
+theta_time = zeros(runTime, NumCells);  % Matrix of angle for each step
 timer = zeros(runTime, 3);              % Timer to keep track of computational efficiency
 
 %% Plotting Parameters
@@ -63,7 +74,6 @@ timer = zeros(runTime, 3);              % Timer to keep track of computational e
 
 % Call to initialize the electric field to generate the desired electric
 % field
-time = 1;
 
 %% Simulation loop
 % Time domain loop for simulation
@@ -74,6 +84,7 @@ for time = 1:runTime
     % Stores current position for time step
     x_time(time, :) = (x(:, 1));
     y_time(time, :) = y(:,1);
+    theta_time(time, :) = vel_ang(:,1);
 
     %% Call to force update functions (cell-cell & cell-field)
     % cell-cell force function
@@ -88,8 +99,8 @@ for time = 1:runTime
     
     %Calculate net force with respective weightings
     Steptimer = tic;                                                        % begin step update timer
-    Fx_net = Fx + EF_x;
-    Fy_net = Fy + EF_y;
+    Fx_net = Fx./gamma + mu*EF_x;
+    Fy_net = Fy./gamma + mu*EF_y;
 
     %Call to step update function
     [x, y, vx, vy, Cradius] = Step_Update(x, y, vx, vy, Cradius, Fx_net, Fy_net, neibAngAvg);
@@ -119,6 +130,9 @@ for time = 1:runTime
 %         drawnow
 %         hold on
 end % end time loop
+cosTheta = cos(theta_time);
+sumCellAngle = sum(cosTheta, 2);
+directionality = sumCellAngle ./ NumCells;
 toc(tStart)
 %% Cell position track graph
 % uncomment for position tracker
@@ -126,6 +140,12 @@ toc(tStart)
     plot((x_time - x_time(1,:)), (y_time - y_time(1,:)))
     xlabel('x position')
     ylabel('y position')
+%% Directionality Graph
+% uncomment for directionality vs time
+%     figure
+%     plot(time_control, directionality)
+%     xlabel('Time (steps)')
+%     ylabel('Directionality')
 
 
 
