@@ -7,7 +7,7 @@
 
 
 ### Project Outline 
-A computational simulation was created to model cell interaction with an environment. 
+A computational simulation was created to model cell interaction with an environment under the advising of Dr. Jonathan Dawson. 
 The model simulates cell-cell interaction and cell-field interaction. The model 
 was created using MATLAB. 
 
