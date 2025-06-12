@@ -11,23 +11,22 @@ global NumCells dt lbox vels_med eta gamma neighborWeight k R_boundary Ex_streng
     c_rec c_lig adh adh_sd runTime vels_std alignment_radius  
 
 %% Domain Parameters
-NumCells = 50;                         % number of cells in simulation
+NumCells = 50;                          % number of cells in simulation
 vels_med = 0.15;                        % initial velocity param center point
 vels_std = 0.03;                        % standard deviation of velocity initialization
-runTime = 150;                          % total runTime of simulation
+runTime = 10;                          % total runTime of simulation
 lbox = 150;                             % size of the box particles are confined to
 R_boundary = lbox/8;                    % Sample domain size for cells to begin
 
 %% Cell-cell parameters
 Cell_radius = 2;                        % fixed cell radius
 k = 0.3;                                % constant in force repulsion calculation (~elasticity)
-eta = 0.05;                             % noise strength
+eta = 0.2;                             % noise strength
 gamma = 10;                             % friction factor
 neighborWeight = 1;                     % group movement weighting
 c_rec = 0.9;                            % mean receptor concentration (noralized)
 c_lig = 0.9;                            % mean ligand concentration (normalized)
-adh = 1e-4;                             % adhesive coefficient
-adh_sd = 5e-5;                         % adhesion param standard deviation
+adh = 1e-3;                             % adhesive coefficient
 alignment_radius = 1.5*Cell_radius;     % collective motion interaction radius
 
 %% Cell-Field parameters

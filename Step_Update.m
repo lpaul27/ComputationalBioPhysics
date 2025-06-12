@@ -12,19 +12,16 @@ global NumCells dt eta gamma neighborWeight vels_med
 FxG = Fx ./ gamma;
 FyG = Fy ./ gamma;
 
-%% Initialization of variables
 % preallocated for speed
 vxf = zeros(NumCells,1);
 vyf = zeros(NumCells,1);
 vxNat = zeros(NumCells, 1);
 vyNat = zeros(NumCells, 1);
 angNatural = zeros(NumCells, 1);
-velocity_mag = zeros(NumCells, 1);
-Cradius_new = zeros(NumCells, 1);
 xf = zeros(NumCells, 1);
 yf = zeros(NumCells, 1);
 
-%% Loop for updating the values of cell
+% Loop for updating the values of cell
 for i = 1:NumCells
     
     %%  Position Update
@@ -47,5 +44,8 @@ for i = 1:NumCells
     % (componentwise)
     vxf(i, 1) = (vxNat(i,1) + FxG(i,1))* dt; % x component 
     vyf(i, 1) = (vyNat(i,1) + FyG(i,1))* dt;% y component
-end
-end
+end % end loop
+end % end function
+
+
+
