@@ -11,28 +11,28 @@ global NumCells dt lbox vels_med eta gamma neighborWeight k R_boundary Ex_streng
     c_rec c_lig adh runTime vels_std alignment_radius Field xphi yphi w ExMax EyMax mu
 
 %% Domain Parameters
-NumCells = 3000;                         % number of cells in simulation
+NumCells = 700;                         % number of cells in simulation
 vels_med = 0.15;                         % initial velocity param center point
 vels_std = 0.03;                        % standard deviation of velocity initialization
-runTime = 500;                           % total runTime of simulation
-lbox = 450;                             % size of the box particles are confined to
+runTime = 100;                           % total runTime of simulation
+lbox = 550;                             % size of the box particles are confined to
 R_boundary = lbox/8;                    % Sample domain size for cells to begin
 
 %% Cell-cell parameters
 Cell_radius = 2;                        % fixed cell radius
-k = 0.2;                                % constant in force repulsion calculation (~elasticity)
-eta = 0.5;                              % noise strength
+k = 0.1;                                % constant in force repulsion calculation (~elasticity)
+eta = 0.1;                              % noise strength
 gamma = 10;                             % friction factor
-mu = 0.1;                               % electrical mobility
-neighborWeight = 1;                     % group movement weighting
+mu = 0.04;                               % electrical mobility
+neighborWeight = 0.1;                     % group movement weighting
 c_rec = 0.9;                            % mean receptor concentration (noralized)
 c_lig = 0.9;                            % mean ligand concentration (normalized)
-adh = 0;                                % adhesive coefficient
+adh = 10e-4;                                % adhesive coefficient
 alignment_radius = 2*Cell_radius;       % collective motion interaction radius
 
 %% Cell-Field parameters
 Field = 1;                              % Signals to time varying fields that field is on if 1
-ExMax = 0.028;                           % x field max
+ExMax = 0.14;                           % x field max
 EyMax = 0;                            % y field max
 
 % Sinusoidal parameters
@@ -136,25 +136,36 @@ sumCellAnglex = sum(cosTheta,2);
 sumCellAngley = sum(sinTheta,2);
 directionalityX = sumCellAnglex ./ NumCells;
 directionalityY = sumCellAngley ./ NumCells;
+
+stat_raw = reshape(theta_time, 1, []);
+stat_trajAvg = mean(theta_time, "all");       
 toc(tStart)
 %% Cell position track graph
 % uncomment for position tracker
-%     figure
-%     plot((x_time - x_time(1,:)), (y_time - y_time(1,:)))
-%     xlabel('x position')
-%     ylabel('y position')
+    figure
+    plot((x_time - x_time(1,:)), (y_time - y_time(1,:)))
+    xlabel('x position')
+    ylabel('y position')
 %% Directionality Graph
 % uncomment for directionality vs time
-    figure
-    plot(time_control, directionalityX)
-        hold on;
-    %plot(time_control, directionalityY, '--');
-    xlabel('Time (steps)');  ylabel('Directionality');
-        %y1 = directionalityX; y2 = directionalityY;  
-        ylim([-0.2,1.2]); xlim([0, runTime]);
-        xline((runTime / 2),'-.', 'TURN')
-    legend('$\mathrm{Phi_{x}}$', '$\mathrm{Phi_{y}}$', 'Interpreter', 'latex');
-        
+%     figure
+%     plot(time_control, directionalityX)
+%         hold on;
+%     plot(time_control, directionalityY, '--');
+%     xlabel('Time (steps)');  ylabel('Directionality');
+%         y1 = directionalityX; y2 = directionalityY;  
+%         ylim([-0.2,1.2]); xlim([0, runTime]);
+%         xline((runTime / 2),'-.', 'TURN')
+%     legend('$\mathrm{\Phi_{x}}$', '$\mathrm{\Phi_{y}}$', 'Interpreter', 'latex');
+%% Distribution Plot visualization
+% Graphical visualization of direction distribution
+
+%     polarhistogram(stat_raw', 36);
+%     hold on;
+%     rlim_vals = rlim;
+%     vector_length = rlim_vals(2);
+%     polarplot([stat_trajAvg stat_trajAvg], [0, vector_length], 'r-', 'LineWidth',2);
+
 
 
 
