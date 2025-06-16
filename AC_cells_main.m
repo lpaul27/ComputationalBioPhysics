@@ -148,9 +148,9 @@ toc(tStart)
     figure
     plot(time_control, directionalityX)
         hold on;
-    plot(time_control, directionalityY, '--');
+    %plot(time_control, directionalityY, '--');
     xlabel('Time (steps)');  ylabel('Directionality');
-        y1 = directionalityX; y2 = directionalityY;  
+        %y1 = directionalityX; y2 = directionalityY;  
         ylim([-0.2,1.2]); xlim([0, runTime]);
         xline((runTime / 2),'-.', 'TURN')
     legend('$\mathrm{Phi_{x}}$', '$\mathrm{Phi_{y}}$', 'Interpreter', 'latex');
