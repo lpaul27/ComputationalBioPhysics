@@ -11,7 +11,7 @@ global NumCells dt lbox vels_med eta gamma neighborWeight k R_boundary Ex_streng
     c_rec c_lig adh runTime vels_std alignment_radius Field xphi yphi w ExMax EyMax mu
 
 %% Domain Parameters
-NumCells = 700;                         % number of cells in simulation
+NumCells = 7000;                         % number of cells in simulation
 vels_med = 0.15;                         % initial velocity param center point
 vels_std = 0.03;                        % standard deviation of velocity initialization
 runTime = 100;                           % total runTime of simulation
@@ -130,6 +130,7 @@ for time = 1:runTime
 %         drawnow
 %         hold on
 end % end time loop
+t = (linspace(0, runTime, runTime))';
 cosTheta = cos(theta_time);
 sinTheta = sin(theta_time);
 sumCellAnglex = sum(cosTheta,2);
@@ -142,21 +143,29 @@ stat_trajAvg = mean(theta_time, "all");
 toc(tStart)
 %% Cell position track graph
 % uncomment for position tracker
-    figure
-    plot((x_time - x_time(1,:)), (y_time - y_time(1,:)))
-    xlabel('x position')
-    ylabel('y position')
+%     figure
+%     hold on;
+%     surface([x_time - x_time(1,:); x_time - x_time(1,:)], ...
+%         [y_time - y_time(1,:); y_time - y_time(1,:)],...
+%         [time_control';time_control'], ...
+%             'EdgeColor','interp',...
+%                 'FaceColor','none', 'LineWidth', 2);
+%     colormap('jet'); colorbar;
+% % %     plot((x_time - x_time(1,:)), (y_time - y_time(1,:)))
+%     xlabel('x position')
+%     ylabel('y position')
+%     axis equal;
 %% Directionality Graph
 % uncomment for directionality vs time
-%     figure
-%     plot(time_control, directionalityX)
-%         hold on;
-%     plot(time_control, directionalityY, '--');
-%     xlabel('Time (steps)');  ylabel('Directionality');
-%         y1 = directionalityX; y2 = directionalityY;  
-%         ylim([-0.2,1.2]); xlim([0, runTime]);
-%         xline((runTime / 2),'-.', 'TURN')
-%     legend('$\mathrm{\Phi_{x}}$', '$\mathrm{\Phi_{y}}$', 'Interpreter', 'latex');
+    figure
+    plot(time_control, directionalityX)
+        hold on;
+    plot(time_control, directionalityY, '--');
+    xlabel('Time (steps)');  ylabel('Directionality');
+        y1 = directionalityX; y2 = directionalityY;  
+        ylim([-0.2,1.2]); xlim([0, runTime]);
+        xline((runTime / 2),'-.', 'TURN')
+    legend('$\mathrm{\Phi_{x}}$', '$\mathrm{\Phi_{y}}$', 'Interpreter', 'latex');
 %% Distribution Plot visualization
 % Graphical visualization of direction distribution
 
