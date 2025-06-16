@@ -11,10 +11,10 @@ global NumCells dt lbox vels_med eta gamma neighborWeight k R_boundary Ex_streng
     c_rec c_lig adh runTime vels_std alignment_radius Field xphi yphi w ExMax EyMax mu
 
 %% Domain Parameters
-NumCells = 7000;                         % number of cells in simulation
+NumCells = 5000;                         % number of cells in simulation
 vels_med = 0.15;                         % initial velocity param center point
 vels_std = 0.03;                        % standard deviation of velocity initialization
-runTime = 100;                           % total runTime of simulation
+runTime = 500;                           % total runTime of simulation
 lbox = 550;                             % size of the box particles are confined to
 R_boundary = lbox/8;                    % Sample domain size for cells to begin
 
@@ -37,7 +37,7 @@ EyMax = 0;                            % y field max
 
 % Sinusoidal parameters
 % f(t) = A sin(wt + o)                  % form
-w = pi / runTime;                       % angular frequency 
+w = pi /(2* runTime);                       % angular frequency 
 xphi = 0;                               % x field offset
 yphi = 0;                               % y field offset
 
