@@ -14,7 +14,7 @@ global NumCells dt lbox vels_med eta gamma neighborWeight k R_boundary Ex_streng
 NumCells = 3000;                         % number of cells in simulation
 vels_med = 0.15;                         % initial velocity param center point
 vels_std = 0.03;                        % standard deviation of velocity initialization
-runTime = 250;                           % total runTime of simulation
+runTime = 500;                           % total runTime of simulation
 lbox = 450;                             % size of the box particles are confined to
 R_boundary = lbox/8;                    % Sample domain size for cells to begin
 
@@ -32,8 +32,8 @@ alignment_radius = 2*Cell_radius;       % collective motion interaction radius
 
 %% Cell-Field parameters
 Field = 1;                              % Signals to time varying fields that field is on if 1
-ExMax = 0.14;                           % x field max
-EyMax = 0.14;                            % y field max
+ExMax = 0.028;                           % x field max
+EyMax = 0;                            % y field max
 
 % Sinusoidal parameters
 % f(t) = A sin(wt + o)                  % form
@@ -131,8 +131,11 @@ for time = 1:runTime
 %         hold on
 end % end time loop
 cosTheta = cos(theta_time);
-sumCellAngle = sum(cosTheta,2);
-directionality = sumCellAngle ./ NumCells;
+sinTheta = sin(theta_time);
+sumCellAnglex = sum(cosTheta,2);
+sumCellAngley = sum(sinTheta,2);
+directionalityX = sumCellAnglex ./ NumCells;
+directionalityY = sumCellAngley ./ NumCells;
 toc(tStart)
 %% Cell position track graph
 % uncomment for position tracker
@@ -143,7 +146,9 @@ toc(tStart)
 %% Directionality Graph
 % uncomment for directionality vs time
     figure
-    plot(time_control, directionality)
+    plot(time_control, directionalityX)
+    hold on;
+    plot(time_control, directionalityY, '--');
     xlabel('Time (steps)')
     ylabel('Directionality')
 
