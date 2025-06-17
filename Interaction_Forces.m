@@ -9,7 +9,7 @@
 function [Fx, Fy, neibAngAvg] = Interaction_Forces(x, y, Cradius, vel_ang)
 
 % Constants in function
-global k NumCells adh c_rec c_lig adh_sd alignment_radius neighborWeight
+global k NumCells adh c_rec c_lig adh_sd neighborWeight
       
 %% Distance Computations
 % Define meshgrid to quantify overlap by grid
@@ -63,8 +63,12 @@ Fy = Fay + Fry;
 
 %% Collective motion angle term
 % find which cells are within interaction radius by defining grid of angles
+% index based on an interaction radius
+
 [angleGrid] = meshgrid(vel_ang);
-%% Test zone
+% dynamic allignment radius vector
+alignment_radius = 2 * Cradius;
+
 index_grid = (dist_btw_cell <= alignment_radius & dist_btw_cell > 0);
 index_grid = index_grid * neighborWeight + eye(size(index_grid));    
     angleGridX = cos(angleGrid);
@@ -76,15 +80,5 @@ InteractionRadGridY = (index_grid .* angGridYT);
 AngSumX = sum(InteractionRadGridX);
 AngSumY = sum(InteractionRadGridY);
 neibAngAvg = (atan2(AngSumY, AngSumX))';
-
-%%
-% index based on an interaction radius
-% % index_grid = (dist_btw_cell <= alignment_radius & dist_btw_cell > 0);
-% % index_grid = index_grid * neighborWeight + eye(size(index_grid));
-% % angleGridT = (angleGrid)';
-% % InteractionRadGrid = (index_grid .* angleGridT);
-% %     indexSum = sum(index_grid);
-% %     AngleSum = sum(InteractionRadGrid);
-% % neibAngAvg = AngleSum' ./(indexSum' + neighborWeight);
 
 end

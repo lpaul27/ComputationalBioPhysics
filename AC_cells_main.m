@@ -8,31 +8,33 @@ tStart = tic;
 
 % Global parameters declaration
 global NumCells dt lbox vels_med eta nu neighborWeight k R_boundary Cell_radius ...
-    c_rec c_lig adh runTime vels_std alignment_radius Field xphi yphi w ExMax EyMax mu
+    c_rec c_lig adh runTime vels_std Field xphi yphi w ExMax EyMax mu ...
+    critRad Ccyclet
 
 %% Domain Parameters
-NumCells = 500;                         % number of cells in simulation
+NumCells = 10;                         % number of cells in simulation
 vels_med = 0.15;                         % initial velocity param center point
 vels_std = 0.03;                        % standard deviation of velocity initialization
-runTime = 250;                           % total runTime of simulation
+critRad = 2;                            % critical radius for mitosis
+Ccyclet = 1000;                          % benchmark cell cycle time
+runTime = 150;                           % total runTime of simulation
 lbox = 150;                             % size of the box particles are confined to
 R_boundary = lbox/8;                    % Sample domain size for cells to begin
 
 %% Cell-cell parameters
-Cell_radius = 2;                        % fixed cell radius
+Cell_radius = 1;                        % fixed cell radius
 k = 0.3;                                % constant in force repulsion calculation (~elasticity)
 eta = 0.05;                              % noise strength
 nu = 0.1;                             % friction factor
 mu = 0.04;                               % electrical mobility
-neighborWeight = 0.01;                     % group movement weighting
+neighborWeight = 0.5;                     % group movement weighting
 c_rec = 0.9;                            % mean receptor concentration (noralized)
 c_lig = 0.9;                            % mean ligand concentration (normalized)
 adh = 1e-4;                                % adhesive coefficient
-alignment_radius = 2*Cell_radius;       % collective motion interaction radius
 
 %% Cell-Field parameters
-Field = 1;                              % Signals to time varying fields that field is on if 1
-ExMax = 0.14;                           % x field max
+Field = 0;                              % Signals to time varying fields that field is on if 1
+ExMax = 0;                           % x field max
 EyMax = 0;                            % y field max
 
 % Sinusoidal parameters
@@ -53,18 +55,19 @@ x_time = zeros(runTime, NumCells);      % Matrix of x position for each step
 y_time = zeros(runTime, NumCells);      % Matrix of y position for each step
 theta_time = zeros(runTime, NumCells);  % Matrix of angle for each step
 timer = zeros(runTime, 3);              % Timer to keep track of computational efficiency
+RadTracker = zeros(runTime, NumCells);  % tracker of cell size
 
 %% Plotting Parameters
 % Parameters for live simulation visualization
 
-%   cell=figure;
-%   cell.WindowState = 'maximized';
-%   axis([0 lbox 0 lbox])
-%   a = get(gca,'XTickLabel');
-%   set(gca,'XTickLabel',a,'fontsize',12);
-%   axis('square')
-%   hold on
-%   skip_points = 14;
+  cell=figure;
+  cell.WindowState = 'maximized';
+  axis([0 lbox 0 lbox])
+  a = get(gca,'XTickLabel');
+  set(gca,'XTickLabel',a,'fontsize',12);
+  axis('square')
+  hold on
+  skip_points = 14;
 
 %% Initialization of System
 % Based on Monte Carlo initialization
@@ -85,6 +88,7 @@ for time = 1:runTime
     x_time(time, :) = (x(:, 1));
     y_time(time, :) = y(:,1);
     theta_time(time, :) = vel_ang(:,1);
+    RadTracker(time, :) = Cradius(:,1);
 
     %% Call to force update functions (cell-cell & cell-field)
     % cell-cell force function
@@ -103,36 +107,38 @@ for time = 1:runTime
     Fy_net = nu*Fy + mu*EF_y;
 
     %Call to step update function
-    [x, y, vx, vy, Cradius] = Step_Update(x, y, vx, vy, Cradius, Fx_net, Fy_net, neibAngAvg);
+    [x, y, vx, vy] = Step_Update(x, y, vx, vy, Fx_net, Fy_net, neibAngAvg);
     vel_ang = atan2(vy,vx);
     timer(time,3) = toc(Steptimer);                                         % end step update timer
 
+    [Cradius] = RadGrowth(Cradius);
+
     %% Live Simulation visualization plot
     % commented out; code runs a live simulation of program
-%         scale_efield = 2;
-%         x_efield_plot = reshape(X,length(X)^2,1);
-%         y_efield_plot = reshape(Y,length(Y)^2,1);
-%         u_efield_plot = reshape(u,length(u)^2,1);
-%         v_efield_plot = reshape(v,length(v)^2,1);
-%         v_result = [vx vy];
-%         v_result_norm = sqrt(diag(v_result * v_result'));
-%     
-%         cla
-%         set(gcf,'doublebuffer','on')
-%         hold on;
-%         skip_nth =14;
-%         quiver(x_efield_plot(1:skip_nth:end),y_efield_plot(1:skip_nth:end),scale_efield*u_efield_plot(1:skip_nth:end),scale_efield*v_efield_plot(1:skip_nth:end), 'Color', [1, 0., 0],   'LineWidth', 1., 'MaxHeadSize', 0.9);
-%         hold on;
-%         quiver(x,y,vx./(0.5*v_result_norm),vy./(0.5*v_result_norm), 'Color',[0, 0, 1], 'MarkerSize', 10, 'LineWidth', 1.5,  'AutoScale', 'off') ;
-%         hold on;
-%         circles(x, y, 1*ones(length(x),1), 'facecolor', [0.3010, 0.7450, 0.9330]);
-%         hold on;
-%         drawnow
-%         hold on
+        scale_efield = 2;
+        x_efield_plot = reshape(X,length(X)^2,1);
+        y_efield_plot = reshape(Y,length(Y)^2,1);
+        u_efield_plot = reshape(u,length(u)^2,1);
+        v_efield_plot = reshape(v,length(v)^2,1);
+        v_result = [vx vy];
+        v_result_norm = sqrt(diag(v_result * v_result'));
+    
+        cla
+        set(gcf,'doublebuffer','on')
+        hold on;
+        skip_nth =14;
+        quiver(x_efield_plot(1:skip_nth:end),y_efield_plot(1:skip_nth:end),scale_efield*u_efield_plot(1:skip_nth:end),scale_efield*v_efield_plot(1:skip_nth:end), 'Color', [1, 0., 0],   'LineWidth', 1., 'MaxHeadSize', 0.9);
+        hold on;
+        quiver(x,y,vx./(0.5*v_result_norm),vy./(0.5*v_result_norm), 'Color',[0, 0, 1], 'MarkerSize', 10, 'LineWidth', 1.5,  'AutoScale', 'off') ;
+        hold on;
+        circles(x, y, Cradius, 'facecolor', [0.3010, 0.7450, 0.9330]);
+        hold on;
+        drawnow
+        hold on
 end % end time loop
 
 % Function call for static plot
-Visualize(x_time,y_time, theta_time, time_control);
+%Visualize(x_time,y_time, theta_time, time_control);
 
 toc(tStart)
 

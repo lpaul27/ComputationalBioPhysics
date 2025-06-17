@@ -3,7 +3,7 @@
 % Inputs: x(t),y(t) // vx(t),vy(t) // radius(t) // Fx(t),Fy(t) // alignment angle(t) 
 % Outputs: x(t+1), y(t+1) // vx(t+1), vy(t+1) // radius(t+1)
 
-function [xf, yf, vxf, vyf, Cradius] = Step_Update(x0, y0, vx0, vy0, Cradius, Fx, Fy, neibAngAvg)
+function [xf, yf, vxf, vyf] = Step_Update(x0, y0, vx0, vy0, Fx, Fy, neibAngAvg)
 
 % Constant parameters used
 global NumCells dt eta gamma neighborWeight vels_med
