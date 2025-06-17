@@ -19,7 +19,6 @@ yf = zeros(NumCells, 1);
 
 % Loop for updating the values of cell
 for i = 1:NumCells
-    
     %%  Position Update
     %       Equation of position
     %       xf = x0 + (vx0)*dt

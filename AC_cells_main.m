@@ -130,61 +130,13 @@ for time = 1:runTime
 %         drawnow
 %         hold on
 end % end time loop
-cosTheta = cos(theta_time);
-sinTheta = sin(theta_time);
-sumCellAnglex = sum(cosTheta,2);
-sumCellAngley = sum(sinTheta,2);
-directionalityX = sumCellAnglex ./ NumCells;
-directionalityY = sumCellAngley ./ NumCells;
 
-stat_raw = reshape(theta_time, 1, []);
-stat_trajAvg = mean(theta_time, "all");       
+% Function call for static plot
+Visualize(x_time,y_time, theta_time, time_control);
+
 toc(tStart)
-%% Cell position track graph
-% uncomment for position tracker
-    figure
-    hold on;
-%     surface([x_time - x_time(1,:); x_time - x_time(1,:)], ...
-%         [y_time - y_time(1,:); y_time - y_time(1,:)],...
-%         [time_control';time_control'], ...
-%             'EdgeColor','interp',...
-%                 'FaceColor','none', 'LineWidth', 2);
-%     colormap('jet'); colorbar;
-    plot((x_time - x_time(1,:)), (y_time - y_time(1,:)))
-    xlabel('x position')
-    ylabel('y position')
-%     axis equal;
-%% Directionality Graph
-% uncomment for directionality vs time
-%     figure
-%     plot(time_control, directionalityX)
-%         hold on;
-%     plot(time_control, directionalityY, '--');
-%     xlabel('Time (steps)');  ylabel('Directionality');
-%         y1 = directionalityX; y2 = directionalityY;  
-%         ylim([-0.2,1.2]); xlim([0, runTime]);
-%         xline((runTime / 2),'-.', 'TURN')
-%     legend('$\mathrm{\Phi_{x}}$', '$\mathrm{\Phi_{y}}$', 'Interpreter', 'latex');
-%% Distribution Plot visualization
-% Graphical visualization of direction distribution
 
-%     polarhistogram(stat_raw', 36);
-%     hold on;
-%     rlim_vals = rlim;
-%     vector_length = rlim_vals(2);
-%     polarplot([stat_trajAvg stat_trajAvg], [0, vector_length], 'r-', 'LineWidth',2);
 
-%% Tiled time Based Plots 
-
-tiledlayout(2,1)
-    nexttile
-    plot((x_time(1:floor(runTime/2), :) - x_time(1,:)), (y_time(1: floor(runTime / 2), :) - y_time(1,:)))
-    title('Field Direction: +x')
-
-    nexttile
-    plot((x_time(floor(runTime/2) + 1: runTime, :) - x_time(runTime / 2,:)), (y_time(floor(runTime / 2) + 1: runTime, :) - y_time(runTime/ 2 + 1,:)))
-    title('Field Direction: +y')
-    
 
 
 
