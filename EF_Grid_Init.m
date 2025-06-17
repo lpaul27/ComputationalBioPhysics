@@ -16,20 +16,20 @@ global lbox runTime Field xphi yphi w ExMax EyMax
 % at uniform time intervals
 
 % Discrete change in field direction
-% %     if( time > (runTime / 2) && Field)
-% %         Ex_strength = EyMax;
-% %         Ey_strength = ExMax;
-% %     else
-% %         Ex_strength = ExMax;
-% %         Ey_strength = EyMax;
-% %     end
+    if( time > (runTime / 2) && Field)
+        Ex_strength = -ExMax;
+        Ey_strength = -EyMax;
+    else
+        Ex_strength = ExMax;
+        Ey_strength = EyMax;
+    end
 
 %% Case 2: Representation based on a nonuniform distribution
 % Representation based on position and given function
-
-Ex_strength = ExMax * sin ((w * time) + xphi);
-Ey_strength = EyMax * sin ((w*time) + yphi);
-
+% % if(Field)
+% %     Ex_strength = ExMax * sin ((w * time) + xphi);
+% %     Ey_strength = EyMax * sin ((w*time) + yphi);
+% % end
 [X,Y] = meshgrid(0.1:2:lbox+0.5);
 
 

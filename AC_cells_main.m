@@ -7,27 +7,27 @@ tStart = tic;
 % All parameters for model across all functions
 
 % Global parameters declaration
-global NumCells dt lbox vels_med eta gamma neighborWeight k R_boundary Ex_strength Ey_strength Cell_radius ...
+global NumCells dt lbox vels_med eta nu neighborWeight k R_boundary Cell_radius ...
     c_rec c_lig adh runTime vels_std alignment_radius Field xphi yphi w ExMax EyMax mu
 
 %% Domain Parameters
-NumCells = 5000;                         % number of cells in simulation
+NumCells = 500;                         % number of cells in simulation
 vels_med = 0.15;                         % initial velocity param center point
 vels_std = 0.03;                        % standard deviation of velocity initialization
-runTime = 500;                           % total runTime of simulation
-lbox = 550;                             % size of the box particles are confined to
+runTime = 250;                           % total runTime of simulation
+lbox = 150;                             % size of the box particles are confined to
 R_boundary = lbox/8;                    % Sample domain size for cells to begin
 
 %% Cell-cell parameters
 Cell_radius = 2;                        % fixed cell radius
-k = 0.1;                                % constant in force repulsion calculation (~elasticity)
-eta = 0.1;                              % noise strength
-gamma = 10;                             % friction factor
+k = 0.3;                                % constant in force repulsion calculation (~elasticity)
+eta = 0.05;                              % noise strength
+nu = 0.1;                             % friction factor
 mu = 0.04;                               % electrical mobility
-neighborWeight = 0.1;                     % group movement weighting
+neighborWeight = 0.01;                     % group movement weighting
 c_rec = 0.9;                            % mean receptor concentration (noralized)
 c_lig = 0.9;                            % mean ligand concentration (normalized)
-adh = 10e-4;                                % adhesive coefficient
+adh = 1e-4;                                % adhesive coefficient
 alignment_radius = 2*Cell_radius;       % collective motion interaction radius
 
 %% Cell-Field parameters
@@ -37,7 +37,7 @@ EyMax = 0;                            % y field max
 
 % Sinusoidal parameters
 % f(t) = A sin(wt + o)                  % form
-w = pi /(2* runTime);                       % angular frequency 
+w = 8*pi /(runTime);                       % angular frequency 
 xphi = 0;                               % x field offset
 yphi = 0;                               % y field offset
 
@@ -99,8 +99,8 @@ for time = 1:runTime
     
     %Calculate net force with respective weightings
     Steptimer = tic;                                                        % begin step update timer
-    Fx_net = Fx./gamma + mu*EF_x;
-    Fy_net = Fy./gamma + mu*EF_y;
+    Fx_net = nu*Fx + mu*EF_x;
+    Fy_net = nu*Fy + mu*EF_y;
 
     %Call to step update function
     [x, y, vx, vy, Cradius] = Step_Update(x, y, vx, vy, Cradius, Fx_net, Fy_net, neibAngAvg);
@@ -130,7 +130,6 @@ for time = 1:runTime
 %         drawnow
 %         hold on
 end % end time loop
-t = (linspace(0, runTime, runTime))';
 cosTheta = cos(theta_time);
 sinTheta = sin(theta_time);
 sumCellAnglex = sum(cosTheta,2);
@@ -143,29 +142,29 @@ stat_trajAvg = mean(theta_time, "all");
 toc(tStart)
 %% Cell position track graph
 % uncomment for position tracker
-%     figure
-%     hold on;
+    figure
+    hold on;
 %     surface([x_time - x_time(1,:); x_time - x_time(1,:)], ...
 %         [y_time - y_time(1,:); y_time - y_time(1,:)],...
 %         [time_control';time_control'], ...
 %             'EdgeColor','interp',...
 %                 'FaceColor','none', 'LineWidth', 2);
 %     colormap('jet'); colorbar;
-% % %     plot((x_time - x_time(1,:)), (y_time - y_time(1,:)))
-%     xlabel('x position')
-%     ylabel('y position')
+    plot((x_time - x_time(1,:)), (y_time - y_time(1,:)))
+    xlabel('x position')
+    ylabel('y position')
 %     axis equal;
 %% Directionality Graph
 % uncomment for directionality vs time
-    figure
-    plot(time_control, directionalityX)
-        hold on;
-    plot(time_control, directionalityY, '--');
-    xlabel('Time (steps)');  ylabel('Directionality');
-        y1 = directionalityX; y2 = directionalityY;  
-        ylim([-0.2,1.2]); xlim([0, runTime]);
-        xline((runTime / 2),'-.', 'TURN')
-    legend('$\mathrm{\Phi_{x}}$', '$\mathrm{\Phi_{y}}$', 'Interpreter', 'latex');
+%     figure
+%     plot(time_control, directionalityX)
+%         hold on;
+%     plot(time_control, directionalityY, '--');
+%     xlabel('Time (steps)');  ylabel('Directionality');
+%         y1 = directionalityX; y2 = directionalityY;  
+%         ylim([-0.2,1.2]); xlim([0, runTime]);
+%         xline((runTime / 2),'-.', 'TURN')
+%     legend('$\mathrm{\Phi_{x}}$', '$\mathrm{\Phi_{y}}$', 'Interpreter', 'latex');
 %% Distribution Plot visualization
 % Graphical visualization of direction distribution
 
@@ -175,6 +174,17 @@ toc(tStart)
 %     vector_length = rlim_vals(2);
 %     polarplot([stat_trajAvg stat_trajAvg], [0, vector_length], 'r-', 'LineWidth',2);
 
+%% Tiled time Based Plots 
+
+tiledlayout(2,1)
+    nexttile
+    plot((x_time(1:floor(runTime/2), :) - x_time(1,:)), (y_time(1: floor(runTime / 2), :) - y_time(1,:)))
+    title('Field Direction: +x')
+
+    nexttile
+    plot((x_time(floor(runTime/2) + 1: runTime, :) - x_time(runTime / 2,:)), (y_time(floor(runTime / 2) + 1: runTime, :) - y_time(runTime/ 2 + 1,:)))
+    title('Field Direction: +y')
+    
 
 
 
