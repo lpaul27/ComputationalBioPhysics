@@ -9,14 +9,15 @@ tStart = tic;
 % Global parameters declaration
 global NumCells dt lbox vels_med eta nu neighborWeight k R_boundary Cell_radius ...
     c_rec c_lig adh runTime vels_std Field xphi yphi w ExMax EyMax mu ...
-    critRad Ccyclet
+    critRad Ccyclet critical_pressure
 
 %% Domain Parameters
-NumCells = 10;                         % number of cells in simulation
+NumCells = 100;                         % number of cells in simulation
 vels_med = 0.15;                         % initial velocity param center point
 vels_std = 0.03;                        % standard deviation of velocity initialization
 critRad = 2;                            % critical radius for mitosis
 Ccyclet = 1000;                          % benchmark cell cycle time
+critical_pressure = 0.001;               % Critical presssure for dormancy
 runTime = 150;                           % total runTime of simulation
 lbox = 150;                             % size of the box particles are confined to
 R_boundary = lbox/8;                    % Sample domain size for cells to begin
@@ -93,7 +94,7 @@ for time = 1:runTime
     %% Call to force update functions (cell-cell & cell-field)
     % cell-cell force function
     CCtimer = tic;                                                          % begin cell-cell timer                   
-    [Fx, Fy, neibAngAvg] = Interaction_Forces(x, y, Cradius, vel_ang);
+    [Fx, Fy, neibAngAvg, vertOverlap] = Interaction_Forces(x, y, Cradius, vel_ang);
     timer(time, 1) = toc(CCtimer);                                          % end cell-cell timer
  
     % cell-field force function
@@ -111,7 +112,7 @@ for time = 1:runTime
     vel_ang = atan2(vy,vx);
     timer(time,3) = toc(Steptimer);                                         % end step update timer
 
-    [Cradius] = RadGrowth(Cradius);
+    [Cradius] = RadGrowth(Cradius, vertOverlap, Fx, Fy);
 
     %% Live Simulation visualization plot
     % commented out; code runs a live simulation of program
@@ -137,7 +138,7 @@ for time = 1:runTime
         hold on
 end % end time loop
 
-% Function call for static plot
+%% Function call for static plot
 %Visualize(x_time,y_time, theta_time, time_control);
 
 toc(tStart)

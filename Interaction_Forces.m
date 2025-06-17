@@ -6,7 +6,7 @@
 % Outputs: componentwise cell-cell interaction force, average angle of
 % neighbors within reaction radius
 
-function [Fx, Fy, neibAngAvg] = Interaction_Forces(x, y, Cradius, vel_ang)
+function [Fx, Fy, neibAngAvg, cell_vert_overlap] = Interaction_Forces(x, y, Cradius, vel_ang)
 
 % Constants in function
 global k NumCells adh c_rec c_lig adh_sd neighborWeight
@@ -21,6 +21,7 @@ sepy = YY - YY';
 % *Diagonal is zero b/c 'cell i' - 'cell i' overlap is always 0*
 dist_btw_cell = sqrt(sepx.*sepx + sepy.*sepy);
 sep_angle = atan2(sepy,sepx);
+
 
 % Define grid of cell radius 
 [RadGrid] = meshgrid(Cradius);
