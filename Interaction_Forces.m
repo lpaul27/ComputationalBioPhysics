@@ -6,7 +6,7 @@
 % Outputs: componentwise cell-cell interaction force, average angle of
 % neighbors within reaction radius
 
-function [Fx, Fy, neibAngAvg, cell_vert_overlap] = Interaction_Forces(x, y, Cradius, vel_ang)
+function [Fx, Fy, neibAngAvg, Pressure] = Interaction_Forces(x, y, Cradius, vel_ang)
 
 % Constants in function
 global k NumCells adh c_rec c_lig adh_sd neighborWeight
@@ -55,13 +55,24 @@ cell_vert_overlap = sqrt(term1 - term2)./cellRij;                           %'li
     cell_vert_overlap(isnan(cell_vert_overlap)) = 0; % NaN --> 0
 
 % Calculate force of adhesion based on model
-Fax =  (sum(adh * cell_vert_overlap .* 0.5 .* (1*1+1*1) .* cos(anglesep)))';
+Fax =  (sum(adh .* cell_vert_overlap * 0.5 * (1+1+1+1) .* cos(anglesep)))';
 Fay = (sum(adh .* cell_vert_overlap * 0.5 * (1+1+1+1) .* sin(anglesep)))';
 
 % Calculate the net force
 Fx = Fax + Frx;
 Fy = Fay + Fry;
 
+% Calculate the pressure unto each cell
+
+Force_gridx = (adh .* cell_vert_overlap * 0.5 * (1+1+1+1) .* cos(anglesep)) + ... 
+    -k*trueOverlap.*(sepx./(dist_btw_cell+eye(NumCells)));
+Force_gridy = (adh .* cell_vert_overlap * 0.5 * (1+1+1+1) .* sin(anglesep)) + ...
+    -k*trueOverlap.*(sepy./(dist_btw_cell+eye(NumCells)));
+
+Pressure = sqrt(Force_gridx.^2 + Force_gridy.^2) ./ cell_vert_overlap;
+temp = find(isnan(Pressure));
+Pressure(temp) = 0;
+Pressure = (sum(Pressure))';
 %% Collective motion angle term
 % find which cells are within interaction radius by defining grid of angles
 % index based on an interaction radius

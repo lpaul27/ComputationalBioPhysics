@@ -12,11 +12,11 @@ global NumCells dt lbox vels_med eta nu neighborWeight k R_boundary Cell_radius 
     critRad Ccyclet critical_pressure
 
 %% Domain Parameters
-NumCells = 100;                         % number of cells in simulation
+NumCells = 1;                         % number of cells in simulation
 vels_med = 0.15;                         % initial velocity param center point
 vels_std = 0.03;                        % standard deviation of velocity initialization
-critRad = 2;                            % critical radius for mitosis
-Ccyclet = 1000;                          % benchmark cell cycle time
+critRad = 1.5;                            % critical radius for mitosis
+Ccyclet = 100;                          % benchmark cell cycle time
 critical_pressure = 0.001;               % Critical presssure for dormancy
 runTime = 150;                           % total runTime of simulation
 lbox = 150;                             % size of the box particles are confined to
@@ -84,9 +84,8 @@ RadTracker = zeros(runTime, NumCells);  % tracker of cell size
 
 for time = 1:runTime
     [u, v, X, Y] = EF_Grid_Init(time);
-    
     % Stores current position for time step
-    x_time(time, :) = (x(:, 1));
+    x_time(time, :) = (x(:,1));
     y_time(time, :) = y(:,1);
     theta_time(time, :) = vel_ang(:,1);
     RadTracker(time, :) = Cradius(:,1);
@@ -94,7 +93,7 @@ for time = 1:runTime
     %% Call to force update functions (cell-cell & cell-field)
     % cell-cell force function
     CCtimer = tic;                                                          % begin cell-cell timer                   
-    [Fx, Fy, neibAngAvg, vertOverlap] = Interaction_Forces(x, y, Cradius, vel_ang);
+    [Fx, Fy, neibAngAvg, Pressure] = Interaction_Forces(x, y, Cradius, vel_ang);
     timer(time, 1) = toc(CCtimer);                                          % end cell-cell timer
  
     % cell-field force function
@@ -112,7 +111,7 @@ for time = 1:runTime
     vel_ang = atan2(vy,vx);
     timer(time,3) = toc(Steptimer);                                         % end step update timer
 
-    [Cradius] = RadGrowth(Cradius, vertOverlap, Fx, Fy);
+    [Cradius, x, y, vx, vy] = RadGrowth(Cradius, Pressure, x, y, vel_ang, vx, vy);
 
     %% Live Simulation visualization plot
     % commented out; code runs a live simulation of program

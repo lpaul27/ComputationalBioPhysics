@@ -25,9 +25,9 @@ speed = zeros(NumCells, 1);
 for cells = 1:NumCells
     %% cell radius Initialization
     % Cell radius about normal distribution
-    %  --> Cradius(cells, 1) = randgaussrad(0.3, 0.08);
+    Cradius(cells, 1) = randgaussrad(1, 0.08);
     % Fixed cell radius
-    Cradius(cells, 1) = Cell_radius;
+    %Cradius(cells, 1) = Cell_radius;
 
     %% Position Initialization
     %Polar coordinates to confine system position initialization
