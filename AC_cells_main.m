@@ -12,13 +12,13 @@ global NumCells dt lbox vels_med eta nu neighborWeight k R_boundary Cell_radius 
     critRad Ccyclet critical_pressure
 
 %% Domain Parameters
-NumCells = 1;                         % number of cells in simulation
+NumCells = 50;                         % number of cells in simulation
 vels_med = 0.15;                         % initial velocity param center point
 vels_std = 0.03;                        % standard deviation of velocity initialization
-critRad = 1.5;                            % critical radius for mitosis
+critRad = 1.2;                            % critical radius for mitosis
 Ccyclet = 100;                          % benchmark cell cycle time
 critical_pressure = 0.001;               % Critical presssure for dormancy
-runTime = 150;                           % total runTime of simulation
+runTime = 600;                           % total runTime of simulation
 lbox = 150;                             % size of the box particles are confined to
 R_boundary = lbox/8;                    % Sample domain size for cells to begin
 
@@ -85,7 +85,7 @@ RadTracker = zeros(runTime, NumCells);  % tracker of cell size
 for time = 1:runTime
     [u, v, X, Y] = EF_Grid_Init(time);
     % Stores current position for time step
-    x_time(time, :) = (x(:,1));
+    x_time(time, :) = x(:,1);
     y_time(time, :) = y(:,1);
     theta_time(time, :) = vel_ang(:,1);
     RadTracker(time, :) = Cradius(:,1);
@@ -111,7 +111,8 @@ for time = 1:runTime
     vel_ang = atan2(vy,vx);
     timer(time,3) = toc(Steptimer);                                         % end step update timer
 
-    [Cradius, x, y, vx, vy] = RadGrowth(Cradius, Pressure, x, y, vel_ang, vx, vy);
+    [Cradius,x, y, vx, vy, vel_ang, x_time, y_time, theta_time, RadTracker] = RadGrowth(Cradius, Pressure, x, ...
+    y, vel_ang, vx, vy, x_time, y_time, time, theta_time, RadTracker);
 
     %% Live Simulation visualization plot
     % commented out; code runs a live simulation of program

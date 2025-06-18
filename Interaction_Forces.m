@@ -70,8 +70,7 @@ Force_gridy = (adh .* cell_vert_overlap * 0.5 * (1+1+1+1) .* sin(anglesep)) + ..
     -k*trueOverlap.*(sepy./(dist_btw_cell+eye(NumCells)));
 
 Pressure = sqrt(Force_gridx.^2 + Force_gridy.^2) ./ cell_vert_overlap;
-temp = find(isnan(Pressure));
-Pressure(temp) = 0;
+Pressure(isnan(Pressure)) = 0;
 Pressure = (sum(Pressure))';
 %% Collective motion angle term
 % find which cells are within interaction radius by defining grid of angles
