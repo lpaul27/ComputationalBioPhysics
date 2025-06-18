@@ -13,12 +13,12 @@ global NumCells dt lbox vels_med eta nu neighborWeight k R_boundary Cell_radius 
 
 %% Domain Parameters
 err = 0;
-NumCells = 70;                         % number of cells in simulation
+NumCells = 40;                         % number of cells in simulation
 vels_med = 0.15;                         % initial velocity param center point
 vels_std = 0.03;                        % standard deviation of velocity initialization
 critRad = 1.2;                            % critical radius for mitosis
-Ccyclet = 200;                          % benchmark cell cycle time
-critical_pressure = 1e-3;               % Critical presssure for dormancy
+Ccyclet = 100;                          % benchmark cell cycle time
+critical_pressure = 0.05;               % Critical presssure for dormancy
 runTime = 600;                           % total runTime of simulation
 lbox = 150;                             % size of the box particles are confined to
 R_boundary = lbox/8;                    % Sample domain size for cells to begin
@@ -36,8 +36,8 @@ c_lig = 0.9;                            % mean ligand concentration (normalized)
 adh = 1e-4;                                % adhesive coefficient
 
 %% Cell-Field parameters
-Field = 0;                              % Signals to time varying fields that field is on if 1
-ExMax = 0;                           % x field max
+Field = 1;                              % Signals to time varying fields that field is on if 1
+ExMax = 0.14;                           % x field max
 EyMax = 0;                            % y field max
 
 % Sinusoidal parameters
@@ -95,18 +95,21 @@ for time = 1:runTime
     %% Call to force update functions (cell-cell & cell-field)
     % cell-cell force function
     CCtimer = tic;                                                          % begin cell-cell timer                   
-    [Fx, Fy, neibAngAvg, Pressure] = Interaction_Forces(x, y, Cradius, vel_ang);
+    [Fx, Fy, neibAngAvg, Cpressure] = Interaction_Forces(x, y, Cradius, vel_ang);
     timer(time, 1) = toc(CCtimer);                                          % end cell-cell timer
  
     % cell-field force function
     CFtimer = tic;                                                          % begin cell-field timer
-    [EF_x, EF_y] = Electric_Force(Cradius, x, y, u, v, X, Y);
+    [EF_x, EF_y, Epressure] = Electric_Force(Cradius, x, y, u, v, X, Y);
     timer(time, 2) = toc(CFtimer);                                          % end cell-field timer
     
     %Calculate net force with respective weightings
     Steptimer = tic;                                                        % begin step update timer
     Fx_net = nu*Fx + mu*EF_x;
     Fy_net = nu*Fy + mu*EF_y;
+    
+    % Calculate the net pressure
+    Pressure = Epressure + Cpressure;
 
     %Call to step update function
     [x, y, vx, vy] = Step_Update(x, y, vx, vy, Fx_net, Fy_net, neibAngAvg);
