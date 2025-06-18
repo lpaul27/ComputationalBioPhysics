@@ -81,7 +81,7 @@ Pressure = (sum(Pressure))';
 alignment_radius = 2 * Cradius;
 
 index_grid = (dist_btw_cell <= alignment_radius & dist_btw_cell > 0);
-index_grid = index_grid * neighborWeight + eye(size(index_grid));    
+index_grid = index_grid * (neighborWeight/ (1+neighborWeight)) + eye(size(index_grid));    
     angleGridX = cos(angleGrid);
     angleGridY = sin(angleGrid);
     angGridXT = angleGridX';

@@ -9,15 +9,16 @@ tStart = tic;
 % Global parameters declaration
 global NumCells dt lbox vels_med eta nu neighborWeight k R_boundary Cell_radius ...
     c_rec c_lig adh runTime vels_std Field xphi yphi w ExMax EyMax mu ...
-    critRad Ccyclet critical_pressure
+    critRad Ccyclet critical_pressure daughter_noise
 
 %% Domain Parameters
-NumCells = 50;                         % number of cells in simulation
+err = 0;
+NumCells = 70;                         % number of cells in simulation
 vels_med = 0.15;                         % initial velocity param center point
 vels_std = 0.03;                        % standard deviation of velocity initialization
 critRad = 1.2;                            % critical radius for mitosis
-Ccyclet = 100;                          % benchmark cell cycle time
-critical_pressure = 0.001;               % Critical presssure for dormancy
+Ccyclet = 200;                          % benchmark cell cycle time
+critical_pressure = 1e-3;               % Critical presssure for dormancy
 runTime = 600;                           % total runTime of simulation
 lbox = 150;                             % size of the box particles are confined to
 R_boundary = lbox/8;                    % Sample domain size for cells to begin
@@ -25,10 +26,11 @@ R_boundary = lbox/8;                    % Sample domain size for cells to begin
 %% Cell-cell parameters
 Cell_radius = 1;                        % fixed cell radius
 k = 0.3;                                % constant in force repulsion calculation (~elasticity)
-eta = 0.05;                              % noise strength
+eta = 00.05;                              % noise strength in movement
+daughter_noise = 1;                     % noise strength in mitosis separation
 nu = 0.1;                             % friction factor
 mu = 0.04;                               % electrical mobility
-neighborWeight = 0.5;                     % group movement weighting
+neighborWeight = 0.2;                     % group movement weighting
 c_rec = 0.9;                            % mean receptor concentration (noralized)
 c_lig = 0.9;                            % mean ligand concentration (normalized)
 adh = 1e-4;                                % adhesive coefficient
@@ -110,11 +112,17 @@ for time = 1:runTime
     [x, y, vx, vy] = Step_Update(x, y, vx, vy, Fx_net, Fy_net, neibAngAvg);
     vel_ang = atan2(vy,vx);
     timer(time,3) = toc(Steptimer);                                         % end step update timer
-
-    [Cradius,x, y, vx, vy, vel_ang, x_time, y_time, theta_time, RadTracker] = RadGrowth(Cradius, Pressure, x, ...
-    y, vel_ang, vx, vy, x_time, y_time, time, theta_time, RadTracker);
-
-    %% Live Simulation visualization plot
+    if(isreal(vx))
+        [Cradius,x, y, vx, vy, vel_ang, x_time, y_time, theta_time, RadTracker] = RadGrowth(Cradius, Pressure, x, ...
+            y, vel_ang, vx, vy, x_time, y_time, time, theta_time, RadTracker);
+        if(isreal(vx))
+        else 
+            err = 2;
+        end
+    else
+        err = 1;
+    end
+            %% Live Simulation visualization plot
     % commented out; code runs a live simulation of program
         scale_efield = 2;
         x_efield_plot = reshape(X,length(X)^2,1);
