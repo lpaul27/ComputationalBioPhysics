@@ -22,8 +22,8 @@ for i = 1:NumCells
         vx(NumCells, 1) = vels_med * cos(vel_ang(i) + daughter_noise * pi * (rand() - 0.5));
         vy(NumCells, 1) = vels_med * sin(vel_ang(i) + daughter_noise * pi * (rand() - 0.5));
         vel_ang(NumCells, 1) = atan2(vy(NumCells,1), vx(NumCells,1));
-        Cradius(NumCells, 1) = Cradius(i,1) / sqrt(2);
-        Cradius(i,1) = Cradius(i,1) / sqrt(2);
+        Cradius(NumCells, 1) = Cradius(i,1) ./ sqrt(2);
+        Cradius(i,1) = Cradius(i,1) ./ sqrt(2);
 
         % Update tracker to account for new cells
         x_time(1:time, NumCells) = x_time(1:time, i);

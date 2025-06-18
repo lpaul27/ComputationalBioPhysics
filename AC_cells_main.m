@@ -13,7 +13,7 @@ global NumCells dt lbox vels_med eta nu neighborWeight k R_boundary Cell_radius 
 
 %% Domain Parameters
 err = 0;
-NumCells = 40;                         % number of cells in simulation
+NumCells = 400;                         % number of cells in simulation
 vels_med = 0.15;                         % initial velocity param center point
 vels_std = 0.03;                        % standard deviation of velocity initialization
 critRad = 1.2;                            % critical radius for mitosis
@@ -63,14 +63,14 @@ RadTracker = zeros(runTime, NumCells);  % tracker of cell size
 %% Plotting Parameters
 % Parameters for live simulation visualization
 
-  cell=figure;
-  cell.WindowState = 'maximized';
-  axis([0 lbox 0 lbox])
-  a = get(gca,'XTickLabel');
-  set(gca,'XTickLabel',a,'fontsize',12);
-  axis('square')
-  hold on
-  skip_points = 14;
+%   cell=figure;
+%   cell.WindowState = 'maximized';
+%   axis([0 lbox 0 lbox])
+%   a = get(gca,'XTickLabel');
+%   set(gca,'XTickLabel',a,'fontsize',12);
+%   axis('square')
+%   hold on
+%   skip_points = 14;
 
 %% Initialization of System
 % Based on Monte Carlo initialization
@@ -126,27 +126,27 @@ for time = 1:runTime
         err = 1;
     end
             %% Live Simulation visualization plot
-    % commented out; code runs a live simulation of program
-        scale_efield = 2;
-        x_efield_plot = reshape(X,length(X)^2,1);
-        y_efield_plot = reshape(Y,length(Y)^2,1);
-        u_efield_plot = reshape(u,length(u)^2,1);
-        v_efield_plot = reshape(v,length(v)^2,1);
-        v_result = [vx vy];
-        v_result_norm = sqrt(diag(v_result * v_result'));
-    
-        cla
-        set(gcf,'doublebuffer','on')
-        hold on;
-        skip_nth =14;
-        quiver(x_efield_plot(1:skip_nth:end),y_efield_plot(1:skip_nth:end),scale_efield*u_efield_plot(1:skip_nth:end),scale_efield*v_efield_plot(1:skip_nth:end), 'Color', [1, 0., 0],   'LineWidth', 1., 'MaxHeadSize', 0.9);
-        hold on;
-        quiver(x,y,vx./(0.5*v_result_norm),vy./(0.5*v_result_norm), 'Color',[0, 0, 1], 'MarkerSize', 10, 'LineWidth', 1.5,  'AutoScale', 'off') ;
-        hold on;
-        circles(x, y, Cradius, 'facecolor', [0.3010, 0.7450, 0.9330]);
-        hold on;
-        drawnow
-        hold on
+%     % commented out; code runs a live simulation of program
+%         scale_efield = 2;
+%         x_efield_plot = reshape(X,length(X)^2,1);
+%         y_efield_plot = reshape(Y,length(Y)^2,1);
+%         u_efield_plot = reshape(u,length(u)^2,1);
+%         v_efield_plot = reshape(v,length(v)^2,1);
+%         v_result = [vx vy];
+%         v_result_norm = sqrt(diag(v_result * v_result'));
+%     
+%         cla
+%         set(gcf,'doublebuffer','on')
+%         hold on;
+%         skip_nth =14;
+%         quiver(x_efield_plot(1:skip_nth:end),y_efield_plot(1:skip_nth:end),scale_efield*u_efield_plot(1:skip_nth:end),scale_efield*v_efield_plot(1:skip_nth:end), 'Color', [1, 0., 0],   'LineWidth', 1., 'MaxHeadSize', 0.9);
+%         hold on;
+%         quiver(x,y,vx./(0.5*v_result_norm),vy./(0.5*v_result_norm), 'Color',[0, 0, 1], 'MarkerSize', 10, 'LineWidth', 1.5,  'AutoScale', 'off') ;
+%         hold on;
+%         circles(x, y, Cradius, 'facecolor', [0.3010, 0.7450, 0.9330]);
+%         hold on;
+%         drawnow
+%         hold on
 end % end time loop
 
 %% Function call for static plot
