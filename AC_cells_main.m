@@ -2,18 +2,18 @@
 clear vars;
 close all;
 tStart = tic;
-   
+
 %% Parameters for model
 % All parameters for model across all functions
 
 % Global parameters declaration
 global NumCells dt lbox vels_med eta nu neighborWeight k R_boundary Cell_radius ...
     c_rec c_lig adh runTime vels_std Field xphi yphi w ExMax EyMax mu ...
-    critRad Ccyclet critical_pressure daughter_noise
+    critRad Ccyclet critical_pressure daughter_noise Cell_std
 
 %% Domain Parameters
 err = 0;
-NumCells = 400;                         % number of cells in simulation
+NumCells = 40;                         % number of cells in simulation
 vels_med = 0.15;                         % initial velocity param center point
 vels_std = 0.03;                        % standard deviation of velocity initialization
 critRad = 1.2;                            % critical radius for mitosis
@@ -25,6 +25,7 @@ R_boundary = lbox/8;                    % Sample domain size for cells to begin
 
 %% Cell-cell parameters
 Cell_radius = 1;                        % fixed cell radius
+Cell_std = 0.08;                        % Standard Deviation of cell radii
 k = 0.3;                                % constant in force repulsion calculation (~elasticity)
 eta = 00.05;                              % noise strength in movement
 daughter_noise = 1;                     % noise strength in mitosis separation
@@ -36,23 +37,23 @@ c_lig = 0.9;                            % mean ligand concentration (normalized)
 adh = 1e-4;                                % adhesive coefficient
 
 %% Cell-Field parameters
-Field = 1;                              % Signals to time varying fields that field is on if 1
-ExMax = 0.14;                           % x field max
+Field = 0;                              % Signals to time varying fields that field is on if 1
+ExMax = 0;                           % x field max
 EyMax = 0;                            % y field max
 
 % Sinusoidal parameters
 % f(t) = A sin(wt + o)                  % form
-w = 8*pi /(runTime);                       % angular frequency 
+w = 8*pi /(runTime);                       % angular frequency
 xphi = 0;                               % x field offset
 yphi = 0;                               % y field offset
 
 
 %% Other parameters
-dt = 1;                                 % time step 
+dt = 1;                                 % time step
 time_control = (1:runTime)';
 
 %% Initialization of Variables
-% Preallocates values for optimal computation 
+% Preallocates values for optimal computation
 
 x_time = zeros(runTime, NumCells);      % Matrix of x position for each step
 y_time = zeros(runTime, NumCells);      % Matrix of y position for each step
@@ -63,14 +64,14 @@ RadTracker = zeros(runTime, NumCells);  % tracker of cell size
 %% Plotting Parameters
 % Parameters for live simulation visualization
 
-%   cell=figure;
-%   cell.WindowState = 'maximized';
-%   axis([0 lbox 0 lbox])
-%   a = get(gca,'XTickLabel');
-%   set(gca,'XTickLabel',a,'fontsize',12);
-%   axis('square')
-%   hold on
-%   skip_points = 14;
+  cell=figure;
+  cell.WindowState = 'maximized';
+  axis([0 lbox 0 lbox])
+  a = get(gca,'XTickLabel');
+  set(gca,'XTickLabel',a,'fontsize',12);
+  axis('square')
+  hold on
+  skip_points = 14;
 
 %% Initialization of System
 % Based on Monte Carlo initialization
@@ -94,20 +95,20 @@ for time = 1:runTime
 
     %% Call to force update functions (cell-cell & cell-field)
     % cell-cell force function
-    CCtimer = tic;                                                          % begin cell-cell timer                   
+    CCtimer = tic;                                                          % begin cell-cell timer
     [Fx, Fy, neibAngAvg, Cpressure] = Interaction_Forces(x, y, Cradius, vel_ang);
     timer(time, 1) = toc(CCtimer);                                          % end cell-cell timer
- 
+
     % cell-field force function
     CFtimer = tic;                                                          % begin cell-field timer
     [EF_x, EF_y, Epressure] = Electric_Force(Cradius, x, y, u, v, X, Y);
     timer(time, 2) = toc(CFtimer);                                          % end cell-field timer
-    
+
     %Calculate net force with respective weightings
     Steptimer = tic;                                                        % begin step update timer
     Fx_net = nu*Fx + mu*EF_x;
     Fy_net = nu*Fy + mu*EF_y;
-    
+
     % Calculate the net pressure
     Pressure = Epressure + Cpressure;
 
@@ -115,38 +116,33 @@ for time = 1:runTime
     [x, y, vx, vy] = Step_Update(x, y, vx, vy, Fx_net, Fy_net, neibAngAvg);
     vel_ang = atan2(vy,vx);
     timer(time,3) = toc(Steptimer);                                         % end step update timer
-    if(isreal(vx))
-        [Cradius,x, y, vx, vy, vel_ang, x_time, y_time, theta_time, RadTracker] = RadGrowth(Cradius, Pressure, x, ...
-            y, vel_ang, vx, vy, x_time, y_time, time, theta_time, RadTracker);
-        if(isreal(vx))
-        else 
-            err = 2;
-        end
-    else
-        err = 1;
-    end
-            %% Live Simulation visualization plot
-%     % commented out; code runs a live simulation of program
-%         scale_efield = 2;
-%         x_efield_plot = reshape(X,length(X)^2,1);
-%         y_efield_plot = reshape(Y,length(Y)^2,1);
-%         u_efield_plot = reshape(u,length(u)^2,1);
-%         v_efield_plot = reshape(v,length(v)^2,1);
-%         v_result = [vx vy];
-%         v_result_norm = sqrt(diag(v_result * v_result'));
-%     
-%         cla
-%         set(gcf,'doublebuffer','on')
-%         hold on;
-%         skip_nth =14;
-%         quiver(x_efield_plot(1:skip_nth:end),y_efield_plot(1:skip_nth:end),scale_efield*u_efield_plot(1:skip_nth:end),scale_efield*v_efield_plot(1:skip_nth:end), 'Color', [1, 0., 0],   'LineWidth', 1., 'MaxHeadSize', 0.9);
-%         hold on;
-%         quiver(x,y,vx./(0.5*v_result_norm),vy./(0.5*v_result_norm), 'Color',[0, 0, 1], 'MarkerSize', 10, 'LineWidth', 1.5,  'AutoScale', 'off') ;
-%         hold on;
-%         circles(x, y, Cradius, 'facecolor', [0.3010, 0.7450, 0.9330]);
-%         hold on;
-%         drawnow
-%         hold on
+    
+    [Cradius,x, y, vx, vy, vel_ang, x_time, y_time, theta_time, RadTracker] = RadGrowth(Cradius, Pressure, x, ...
+        y, vel_ang, vx, vy, x_time, y_time, time, theta_time, RadTracker);
+
+
+    %% Live Simulation visualization plot
+    %     % commented out; code runs a live simulation of program
+            scale_efield = 2;
+            x_efield_plot = reshape(X,length(X)^2,1);
+            y_efield_plot = reshape(Y,length(Y)^2,1);
+            u_efield_plot = reshape(u,length(u)^2,1);
+            v_efield_plot = reshape(v,length(v)^2,1);
+            v_result = [vx vy];
+            v_result_norm = sqrt(diag(v_result * v_result'));
+    
+            cla
+            set(gcf,'doublebuffer','on')
+            hold on;
+            skip_nth =14;
+            quiver(x_efield_plot(1:skip_nth:end),y_efield_plot(1:skip_nth:end),scale_efield*u_efield_plot(1:skip_nth:end),scale_efield*v_efield_plot(1:skip_nth:end), 'Color', [1, 0., 0],   'LineWidth', 1., 'MaxHeadSize', 0.9);
+            hold on;
+            quiver(x,y,vx./(0.5*v_result_norm),vy./(0.5*v_result_norm), 'Color',[0, 0, 1], 'MarkerSize', 10, 'LineWidth', 1.5,  'AutoScale', 'off') ;
+            hold on;
+            circles(x, y, Cradius, 'facecolor', [0.3010, 0.7450, 0.9330]);
+            hold on;
+            drawnow
+            hold on
 end % end time loop
 
 %% Function call for static plot

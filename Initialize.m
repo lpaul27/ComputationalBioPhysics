@@ -5,10 +5,10 @@
 % Outputs: position of each cell, component velocity of each cell, radius
 % of each cell, angle of travel
 
-function [x, y, vx, vy, Cradius, ang] = Initialize()
+function [x, y, vx, vy, Cradius, vel_ang] = Initialize()
 
 % Declaration of constants
-global lbox vels_med NumCells R_boundary Cell_radius vels_std
+global lbox vels_med NumCells R_boundary Cell_radius vels_std Cell_std
 
 %% Initialization of variables
 Cradius = zeros(NumCells, 1);
@@ -18,16 +18,15 @@ vx = zeros(NumCells, 1);
 vy = zeros(NumCells, 1);
 r = zeros(NumCells, 1);
 theta = zeros(NumCells, 1);
-ang = zeros(NumCells, 1);
+vel_ang = zeros(NumCells, 1);
 speed = zeros(NumCells, 1);
 
 %% Iteration loop over all cells to initialize position and velocity
 for cells = 1:NumCells
     %% cell radius Initialization
     % Cell radius about normal distribution
-    Cradius(cells, 1) = randgaussrad(1, 0.08);
-    % Fixed cell radius
-    %Cradius(cells, 1) = Cell_radius;
+    Cradius(cells, 1) = randgaussrad(Cell_radius, Cell_std);
+
 
     %% Position Initialization
     %Polar coordinates to confine system position initialization
@@ -40,13 +39,13 @@ for cells = 1:NumCells
 
     %% Directionality / velocity  initialization
     %Velocity vector angle initialization
-    ang(cells, 1) = 2*pi*rand();
+    vel_ang(cells, 1) = 2*pi*rand();
     % Cell speed about normal distribution
     %speed(cells, 1) = randgaussrad(vels_med, vels_std);
     speed(cells,1) = vels_med;
     
     %Split componentwise
-    vx(cells,1)= speed(cells, 1)*cos(ang(cells,1));
-    vy(cells,1)= speed(cells,1)*sin(ang(cells,1));
+    vx(cells,1)= speed(cells, 1)*cos(vel_ang(cells,1));
+    vy(cells,1)= speed(cells,1)*sin(vel_ang(cells,1));
 end % end for loop
 end % end function

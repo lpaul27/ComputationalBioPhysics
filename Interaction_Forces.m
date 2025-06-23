@@ -51,7 +51,10 @@ cellRi = logicalGrid.* RadGrid;                                             % ra
 cellRj = logicalGrid .* RadGrid';                                           % radius of cell 'j'
     term1 = (2.*cellRi.*cellRij).^2;                                        % For calculations
     term2 = (cellRi.^2 - cellRj.^2 + cellRij.^2).^2;                        % For calculations
-cell_vert_overlap = sqrt(term1 - term2)./cellRij;                           %'lij' calculation
+    diff = term1 - term2;
+    logic = find(diff < 0);
+    diff(logic) = 0;
+cell_vert_overlap = sqrt(diff)./cellRij;                           %'lij' calculation
     cell_vert_overlap(isnan(cell_vert_overlap)) = 0; % NaN --> 0
 
 % Calculate force of adhesion based on model
