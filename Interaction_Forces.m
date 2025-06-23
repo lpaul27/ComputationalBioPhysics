@@ -9,7 +9,7 @@
 function [Fx, Fy, neibAngAvg, Pressure] = Interaction_Forces(x, y, Cradius, vel_ang, exempt)
 
 % Constants in function
-global k NumCells adh c_rec c_lig adh_sd neighborWeight
+global k NumCells adh neighborWeight
       
 %% Distance Computations
 % Define meshgrid to quantify overlap by grid

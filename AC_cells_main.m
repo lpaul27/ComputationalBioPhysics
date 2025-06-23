@@ -54,7 +54,7 @@ yphi = 0;                               % y field offset
 dt = 1;                                 % time step
 time_control = (1:runTime)';            % time axis for plotting
 R = zeros(NumCells, 1);                    % Red scale for plotting
-G = 0.7*ones(NumCells, 1);                 % Green scale for plotting
+G = zeros(NumCells, 1);                 % Green scale for plotting
 B = ones(NumCells, 1);                     % Blue scale for plotting
 
 %% Initialization of Variables

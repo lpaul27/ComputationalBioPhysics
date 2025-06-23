@@ -6,7 +6,7 @@
 function [xf, yf, vxf, vyf] = Step_Update(x0, y0, vx0, vy0, Fx, Fy, neibAngAvg, exempt)
 
 % Constant parameters used
-global NumCells dt eta gamma neighborWeight vels_med
+global NumCells dt eta vels_med
 
 % preallocated for speed
 vxf = zeros(NumCells,1);

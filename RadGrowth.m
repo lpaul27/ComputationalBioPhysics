@@ -42,7 +42,7 @@ for i = 1:NumCells
     end
     
     %% Check for cell death
-    if(Pressure(i,1) > death_pressure || rand() < death_rate && exempt)
+    if((Pressure(i,1) >= death_pressure || rand() < death_rate) && exempt(i,1))
         exempt(i,1) = 0;
         vx(NumCells, 1) = 0;
         vy(NumCells, 1) = 0;
@@ -52,13 +52,10 @@ for i = 1:NumCells
         R(NumCells,1) = 1;
         G(NumCells,1) = 0;
         B(NumCells, 1) = 0;
-    end
-
-    %% Update colors
-    if(exempt(i,1))
-        R(i,1) =  Pressure(i,1) ./ death_pressure;
-        %G(i,1) =  G(i,1) .* (Pressure(i,1) ./ death_pressure);
-        B(i,1) = B(i,1) .* (Pressure(i,1) ./ death_pressure);
+    else
+        R(i,1) =  Pressure(i,1) ./ (death_pressure + Pressure(i,1));
+        G(i,1) =  G(i,1) .* (1- Pressure(i,1)./ (death_pressure));
+        B(i,1) = B(i,1) .* (1- (Pressure(i,1) ./ (death_pressure)));
     end
 end
 end

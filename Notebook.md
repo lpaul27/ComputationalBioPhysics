@@ -1,7 +1,7 @@
 # Electronic Notebook  
-** Lucas Paul **  
+## Lucas Paul  
 
-6-23-2025
+**6-23-2025**  
 Working to implement changes onto pressure for better visualization 
 and implement cell death aspect
 
