@@ -19,7 +19,7 @@ vels_std = 0.03;                        % standard deviation of velocity initial
 critRad = 1.2;                            % critical radius for mitosis
 Ccyclet = 100;                          % benchmark cell cycle time
 death_rate = 10e-20;                    % Cell death rate
-death_pressure = 0.9;                   % Pressure required for apoptosis
+death_pressure = 0.15;                   % Pressure required for apoptosis
 critical_pressure = 0.05;               % Critical presssure for dormancy
 runTime = 600;                           % total runTime of simulation
 lbox = 150;                             % size of the box particles are confined to
@@ -102,7 +102,7 @@ for time = 1:runTime
     %% Call to force update functions (cell-cell & cell-field)
     % cell-cell force function
     CCtimer = tic;                                                          % begin cell-cell timer
-    [Fx, Fy, neibAngAvg, Cpressure] = Interaction_Forces(x, y, Cradius, vel_ang);
+    [Fx, Fy, neibAngAvg, Cpressure] = Interaction_Forces(x, y, Cradius, vel_ang, exempt);
     timer(time, 1) = toc(CCtimer);                                          % end cell-cell timer
 
     % cell-field force function
@@ -112,23 +112,21 @@ for time = 1:runTime
 
     %Calculate net force with respective weightings
     Steptimer = tic;                                                        % begin step update timer
-    Fx_net = nu*Fx + mu*EF_x;
-    Fy_net = nu*Fy + mu*EF_y;
+    Fx_net = (nu*Fx + mu*EF_x) .* exempt;
+    Fy_net = (nu*Fy + mu*EF_y) .* exempt;
+
+    
 
     % Calculate the net pressure
     Pressure = Epressure + Cpressure;
 
     %Call to step update function
-    [x, y, vx, vy] = Step_Update(x, y, vx, vy, Fx_net, Fy_net, neibAngAvg);
+    [x, y, vx, vy] = Step_Update(x, y, vx, vy, Fx_net, Fy_net, neibAngAvg, exempt);
     vel_ang = atan2(vy,vx);
     timer(time,3) = toc(Steptimer);                                         % end step update timer
 
     [Cradius,x, y, vx, vy, vel_ang, x_time, y_time, theta_time, RadTracker, R, G, B, Pressure, exempt] = RadGrowth(Cradius, Pressure, x, ...
         y, vel_ang, vx, vy, x_time, y_time, time, theta_time, RadTracker, R, G, B, exempt);
-
-    R =  Pressure ./ death_pressure;
-    G =  G - G .* (Pressure ./ death_pressure);
-    B = B - B .* (Pressure ./ death_pressure);
 
 
     %% Live Simulation visualization plot

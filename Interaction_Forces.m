@@ -6,7 +6,7 @@
 % Outputs: componentwise cell-cell interaction force, average angle of
 % neighbors within reaction radius
 
-function [Fx, Fy, neibAngAvg, Pressure] = Interaction_Forces(x, y, Cradius, vel_ang)
+function [Fx, Fy, neibAngAvg, Pressure] = Interaction_Forces(x, y, Cradius, vel_ang, exempt)
 
 % Constants in function
 global k NumCells adh c_rec c_lig adh_sd neighborWeight
@@ -16,6 +16,7 @@ global k NumCells adh c_rec c_lig adh_sd neighborWeight
 [XX,YY] = meshgrid(x, y);
 sepx = XX.' - XX;
 sepy = YY - YY.';
+[exemptGrid] = meshgrid(exempt);
 
 % Magnitude and angle of separation between all cells
 % *Diagonal is zero b/c 'cell i' - 'cell i' overlap is always 0*
@@ -33,6 +34,7 @@ overlap_raw = sum_cell_radii - dist_btw_cell;
 %% Repulsive forces [vectorized]
 % Define grid based on filtered overlap
 logicalGrid = overlap_raw > 0  & overlap_raw < sum_cell_radii;
+logicalGrid = logicalGrid .* exemptGrid;
 trueOverlap = overlap_raw.*logicalGrid;
 anglesep = sep_angle.*logicalGrid;
 
@@ -51,9 +53,9 @@ cellRi = logicalGrid.* RadGrid;                                             % ra
 cellRj = logicalGrid .* RadGrid';                                           % radius of cell 'j'
     term1 = (2.*cellRi.*cellRij).^2;                                        % For calculations
     term2 = (cellRi.^2 - cellRj.^2 + cellRij.^2).^2;                        % For calculations
-    diff = term1 - term2;
-    logic = find(diff < 0);
-    diff(logic) = 0;
+    diff = abs(term1 - term2);
+%     logic = find(diff < 0);
+%     diff(logic) = 0;
 cell_vert_overlap = sqrt(diff)./cellRij;                           %'lij' calculation
     cell_vert_overlap(isnan(cell_vert_overlap)) = 0; % NaN --> 0
 
@@ -94,5 +96,6 @@ InteractionRadGridY = (index_grid .* angGridYT);
 AngSumX = sum(InteractionRadGridX);
 AngSumY = sum(InteractionRadGridY);
 neibAngAvg = (atan2(AngSumY, AngSumX))';
+
 
 end
