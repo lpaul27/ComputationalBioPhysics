@@ -195,6 +195,16 @@ h = NaN(size(x));
 % Plot circles singly: 
 for n = 1:numcircles
     h(n) = fill(x(n)+r(n).*cos(t+rotation(n)), y(n)+r(n).*sin(t+rotation(n)),'',varargin{:});
+% coordsX = x(n) + r(n)*cos(t + rotation(n));
+% coordsY = y(n) + r(n)*sin(t + rotation(n));
+% 
+% if exist('rgb','var')
+%     h(n) = patch(coordsX, coordsY, 0, 'FaceColor', 'flat', ...
+%                  'FaceVertexCData', reshape(rgb(n,:), [1,1,3]), varargin{:});
+% else
+%     h(n) = fill(coordsX, coordsY, '', varargin{:});
+% end
+
 end
 
 % Return to original hold state: 

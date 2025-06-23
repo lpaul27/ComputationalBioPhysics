@@ -9,15 +9,17 @@ tStart = tic;
 % Global parameters declaration
 global NumCells dt lbox vels_med eta nu neighborWeight k R_boundary Cell_radius ...
     c_rec c_lig adh runTime vels_std Field xphi yphi w ExMax EyMax mu ...
-    critRad Ccyclet critical_pressure daughter_noise Cell_std
+    critRad Ccyclet critical_pressure daughter_noise Cell_std death_rate ...
+    death_pressure
 
 %% Domain Parameters
-err = 0;
 NumCells = 40;                         % number of cells in simulation
 vels_med = 0.15;                         % initial velocity param center point
 vels_std = 0.03;                        % standard deviation of velocity initialization
 critRad = 1.2;                            % critical radius for mitosis
 Ccyclet = 100;                          % benchmark cell cycle time
+death_rate = 10e-20;                    % Cell death rate
+death_pressure = 0.9;                   % Pressure required for apoptosis
 critical_pressure = 0.05;               % Critical presssure for dormancy
 runTime = 600;                           % total runTime of simulation
 lbox = 150;                             % size of the box particles are confined to
@@ -50,7 +52,10 @@ yphi = 0;                               % y field offset
 
 %% Other parameters
 dt = 1;                                 % time step
-time_control = (1:runTime)';
+time_control = (1:runTime)';            % time axis for plotting
+R = zeros(NumCells, 1);                    % Red scale for plotting
+G = 0.7*ones(NumCells, 1);                 % Green scale for plotting
+B = ones(NumCells, 1);                     % Blue scale for plotting
 
 %% Initialization of Variables
 % Preallocates values for optimal computation
@@ -60,18 +65,19 @@ y_time = zeros(runTime, NumCells);      % Matrix of y position for each step
 theta_time = zeros(runTime, NumCells);  % Matrix of angle for each step
 timer = zeros(runTime, 3);              % Timer to keep track of computational efficiency
 RadTracker = zeros(runTime, NumCells);  % tracker of cell size
+exempt = ones(NumCells, 1);             % cell death logical
 
 %% Plotting Parameters
 % Parameters for live simulation visualization
 
-  cell=figure;
-  cell.WindowState = 'maximized';
-  axis([0 lbox 0 lbox])
-  a = get(gca,'XTickLabel');
-  set(gca,'XTickLabel',a,'fontsize',12);
-  axis('square')
-  hold on
-  skip_points = 14;
+cell=figure;
+cell.WindowState = 'maximized';
+axis([0 lbox 0 lbox])
+a = get(gca,'XTickLabel');
+set(gca,'XTickLabel',a,'fontsize',12);
+axis('square')
+hold on
+skip_points = 14;
 
 %% Initialization of System
 % Based on Monte Carlo initialization
@@ -116,33 +122,39 @@ for time = 1:runTime
     [x, y, vx, vy] = Step_Update(x, y, vx, vy, Fx_net, Fy_net, neibAngAvg);
     vel_ang = atan2(vy,vx);
     timer(time,3) = toc(Steptimer);                                         % end step update timer
-    
-    [Cradius,x, y, vx, vy, vel_ang, x_time, y_time, theta_time, RadTracker] = RadGrowth(Cradius, Pressure, x, ...
-        y, vel_ang, vx, vy, x_time, y_time, time, theta_time, RadTracker);
+
+    [Cradius,x, y, vx, vy, vel_ang, x_time, y_time, theta_time, RadTracker, R, G, B, Pressure, exempt] = RadGrowth(Cradius, Pressure, x, ...
+        y, vel_ang, vx, vy, x_time, y_time, time, theta_time, RadTracker, R, G, B, exempt);
+
+    R =  Pressure ./ death_pressure;
+    G =  G - G .* (Pressure ./ death_pressure);
+    B = B - B .* (Pressure ./ death_pressure);
 
 
     %% Live Simulation visualization plot
     %     % commented out; code runs a live simulation of program
-            scale_efield = 2;
-            x_efield_plot = reshape(X,length(X)^2,1);
-            y_efield_plot = reshape(Y,length(Y)^2,1);
-            u_efield_plot = reshape(u,length(u)^2,1);
-            v_efield_plot = reshape(v,length(v)^2,1);
-            v_result = [vx vy];
-            v_result_norm = sqrt(diag(v_result * v_result'));
-    
-            cla
-            set(gcf,'doublebuffer','on')
-            hold on;
-            skip_nth =14;
-            quiver(x_efield_plot(1:skip_nth:end),y_efield_plot(1:skip_nth:end),scale_efield*u_efield_plot(1:skip_nth:end),scale_efield*v_efield_plot(1:skip_nth:end), 'Color', [1, 0., 0],   'LineWidth', 1., 'MaxHeadSize', 0.9);
-            hold on;
-            quiver(x,y,vx./(0.5*v_result_norm),vy./(0.5*v_result_norm), 'Color',[0, 0, 1], 'MarkerSize', 10, 'LineWidth', 1.5,  'AutoScale', 'off') ;
-            hold on;
-            circles(x, y, Cradius, 'facecolor', [0.3010, 0.7450, 0.9330]);
-            hold on;
-            drawnow
-            hold on
+    scale_efield = 2;
+    x_efield_plot = reshape(X,length(X)^2,1);
+    y_efield_plot = reshape(Y,length(Y)^2,1);
+    u_efield_plot = reshape(u,length(u)^2,1);
+    v_efield_plot = reshape(v,length(v)^2,1);
+    v_result = [vx vy];
+    v_result_norm = sqrt(diag(v_result * v_result'));
+
+    cla
+    set(gcf,'doublebuffer','on')
+    hold on;
+    skip_nth =14;
+    quiver(x_efield_plot(1:skip_nth:end),y_efield_plot(1:skip_nth:end),scale_efield*u_efield_plot(1:skip_nth:end),scale_efield*v_efield_plot(1:skip_nth:end), 'Color', [1, 0., 0],   'LineWidth', 1., 'MaxHeadSize', 0.9);
+    hold on;
+    quiver(x,y,vx./(0.5*v_result_norm),vy./(0.5*v_result_norm), 'Color',[0, 0, 0], 'MarkerSize', 10, 'LineWidth', 1.5,  'AutoScale', 'off') ;
+    hold on;
+    for i = 1:NumCells
+        circles(x(i), y(i), Cradius(i), 'facecolor', [R(i), G(i), B(i)]);
+    end
+    hold on;
+    drawnow
+    hold on
 end % end time loop
 
 %% Function call for static plot
