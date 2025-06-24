@@ -23,7 +23,6 @@ sepy = YY - YY.';
 dist_btw_cell = sqrt(sepx.*sepx + sepy.*sepy);
 sep_angle = atan2(sepy,sepx);
 
-
 % Define grid of cell radius 
 [RadGrid] = meshgrid(Cradius);
 sum_cell_radii = RadGrid.'+RadGrid;
@@ -34,17 +33,18 @@ overlap_raw = sum_cell_radii - dist_btw_cell;
 %% Repulsive forces [vectorized]
 % Define grid based on filtered overlap
 logicalGrid = overlap_raw > 0  & overlap_raw < sum_cell_radii;
-logicalGrid = logicalGrid .* exemptGrid;
+logicalGrid = logicalGrid .* exemptGrid';
 trueOverlap = overlap_raw.*logicalGrid;
 anglesep = sep_angle.*logicalGrid;
 
 % Calculate force of repulsion
-Frx = sum(-k*trueOverlap.*(sepx./(dist_btw_cell+eye(NumCells))),1).';
-Fry = sum(-k*trueOverlap.*(sepy./(dist_btw_cell+eye(NumCells))),1).';
+repulsionx =  -k*trueOverlap.*(sepx./(dist_btw_cell+eye(NumCells)));
+repulsiony = -k*trueOverlap.*(sepy./(dist_btw_cell+eye(NumCells)));
+Frx = sum((repulsionx),1).';
+Fry = sum(repulsiony,1).';
 
 % Frx = (sum(-k *trueOverlap .* cos(anglesep),2));
 % Fry = (sum(-k * trueOverlap .*sin(anglesep),2));
-
 
 %% Adhesion Forces [vectorized]
 % Using similar logic to apply to adhesion
@@ -54,14 +54,15 @@ cellRj = logicalGrid .* RadGrid';                                           % ra
     term1 = (2.*cellRi.*cellRij).^2;                                        % For calculations
     term2 = (cellRi.^2 - cellRj.^2 + cellRij.^2).^2;                        % For calculations
     diff = abs(term1 - term2);
-%     logic = find(diff < 0);
-%     diff(logic) = 0;
+
 cell_vert_overlap = sqrt(diff)./cellRij;                           %'lij' calculation
     cell_vert_overlap(isnan(cell_vert_overlap)) = 0; % NaN --> 0
 
 % Calculate force of adhesion based on model
-Fax =  (sum(adh .* cell_vert_overlap * 0.5 * (1+1+1+1) .* cos(anglesep)))';
-Fay = (sum(adh .* cell_vert_overlap * 0.5 * (1+1+1+1) .* sin(anglesep)))';
+adhesionx = adh .* cell_vert_overlap * 0.5 * (1+1+1+1) .* cos(anglesep);
+adhesiony = adh .* cell_vert_overlap * 0.5 * (1+1+1+1) .* sin(anglesep);
+Fax =  (sum(adhesionx))';
+Fay = (sum(adhesiony))';
 
 % Calculate the net force
 Fx = Fax + Frx;
@@ -69,10 +70,10 @@ Fy = Fay + Fry;
 
 % Calculate the pressure unto each cell
 
-Force_gridx = (adh .* cell_vert_overlap * 0.5 * (1+1+1+1) .* cos(anglesep)) + ... 
-    -k*trueOverlap.*(sepx./(dist_btw_cell+eye(NumCells)));
-Force_gridy = (adh .* cell_vert_overlap * 0.5 * (1+1+1+1) .* sin(anglesep)) + ...
-    -k*trueOverlap.*(sepy./(dist_btw_cell+eye(NumCells)));
+Force_gridx = (adhesionx) + ... 
+    repulsionx;
+Force_gridy = (adhesiony) + ...
+    repulsiony;
 
 Pressure = sqrt(Force_gridx.^2 + Force_gridy.^2) ./ cell_vert_overlap;
 Pressure(isnan(Pressure)) = 0;

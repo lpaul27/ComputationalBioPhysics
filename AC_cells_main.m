@@ -1,27 +1,28 @@
 % Main file for cell movement in an AC field
 clear vars;
 close all;
-tStart = tic;
-
+steps = 100;
 %% Parameters for model
 % All parameters for model across all functions
-
+mitotic_rate = zeros(steps, 1);
 % Global parameters declaration
 global NumCells dt lbox vels_med eta nu neighborWeight k R_boundary Cell_radius ...
     c_rec c_lig adh runTime vels_std Field xphi yphi w ExMax EyMax mu ...
     critRad Ccyclet critical_pressure daughter_noise Cell_std death_rate ...
     death_pressure chill
+for j = 1:steps
+    tStart = tic;
 
 %% Domain Parameters
-NumCells = 40;                         % number of cells in simulation
-vels_med = 0.15;                         % initial velocity param center point
+NumCells = 500;                         % number of cells in simulation
+vels_med = 0.15;                        % initial velocity param center point
 vels_std = 0.03;                        % standard deviation of velocity initialization
-critRad = 1.2;                            % critical radius for mitosis
-Ccyclet = 100;                          % benchmark cell cycle time
-death_rate = 1e-20;                    % Cell death rate
-death_pressure = 0.35;                   % Pressure required for apoptosis
+critRad = 1.2;                          % critical radius for mitosis
+Ccyclet = 0.1;                          % benchmark cell cycle time
+death_rate = 1e-20;                     % Cell death rate
+death_pressure = 0.35;                  % Pressure required for apoptosis
 critical_pressure = 0.05;               % Critical presssure for dormancy
-runTime = 600;                           % total runTime of simulation
+runTime = 150;                          % total runTime of simulation
 lbox = 150;                             % size of the box particles are confined to
 R_boundary = lbox/8;                    % Sample domain size for cells to begin
 chill = 15;                             % chill time to suppress cell death
@@ -30,23 +31,23 @@ chill = 15;                             % chill time to suppress cell death
 Cell_radius = 1;                        % fixed cell radius
 Cell_std = 0.08;                        % Standard Deviation of cell radii
 k = 0.3;                                % constant in force repulsion calculation (~elasticity)
-eta = 00.05;                              % noise strength in movement
+eta = 0.05;                             % noise strength in movement
 daughter_noise = 1;                     % noise strength in mitosis separation
-nu = 0.1;                             % friction factor
-mu = 0.04;                               % electrical mobility
-neighborWeight = 0.2;                     % group movement weighting
+nu = 0.1;                               % friction factor
+mu = 0.04;                              % electrical mobility
+neighborWeight = 0.2;                   % group movement weighting
 c_rec = 0.9;                            % mean receptor concentration (noralized)
 c_lig = 0.9;                            % mean ligand concentration (normalized)
 adh = 1e-4;                                % adhesive coefficient
 
 %% Cell-Field parameters
 Field = 0;                              % Signals to time varying fields that field is on if 1
-ExMax = 0;                           % x field max
-EyMax = 0;                            % y field max
+ExMax = 0.003*(j - 1);                % x field max
+EyMax = 0;                              % y field max
 
 % Sinusoidal parameters
 % f(t) = A sin(wt + o)                  % form
-w = 8*pi /(runTime);                       % angular frequency
+w = 8*pi /(runTime);                    % angular frequency
 xphi = 0;                               % x field offset
 yphi = 0;                               % y field offset
 
@@ -54,9 +55,9 @@ yphi = 0;                               % y field offset
 %% Other parameters
 dt = 1;                                 % time step
 time_control = (1:runTime)';            % time axis for plotting
-R = zeros(NumCells, 1);                    % Red scale for plotting
-G = ones(NumCells, 1);                 % Green scale for plotting
-B = ones(NumCells, 1);                     % Blue scale for plotting
+R = zeros(NumCells, 1);                 % Red scale for plotting
+G = ones(NumCells, 1);                  % Green scale for plotting
+B = ones(NumCells, 1);                  % Blue scale for plotting
 
 %% Initialization of Variables
 % Preallocates values for optimal computation
@@ -116,7 +117,7 @@ for time = 1:runTime
     Fx_net = (nu*Fx + mu*EF_x) .* exempt;
     Fy_net = (nu*Fy + mu*EF_y) .* exempt;
 
-    
+
 
     % Calculate the net pressure
     Pressure = Epressure + Cpressure;
@@ -158,11 +159,12 @@ end % end time loop
 %% Function call for static plot
 %Visualize(x_time,y_time, theta_time, time_control);
 
-toc(tStart)
-
-
-
-
+est = toc(tStart);
+mitotic_rate(j,1) = NumCells - 50;
+est_finish = est * runTime - j;
+fprintf('Estimated time left: %f \n', est_finish)
+end
+scatter((1:steps), mitotic_rate)
 
 
 

@@ -13,9 +13,9 @@ which exempts the dead cell from any interaction, treating it as dead.
 
 **6-24-2025**  
 
-Debugging of cell death and dynamic RGB changes in cells. Issue was in  
-simpple changes in RadGrowth file in the access of which cells were able to change the  
-RGB values due to a faulty if/else statement. 
-Next implementation is going to be debugging further and more rigorous tets in death/RGB pressure  
-as well as optimizing for computational efficiency in various files and  
+Debugging of cell death and dynamic RGB changes in cells. Issue was in
+simple changes in RadGrowth file in the access of which cells were able to change the
+RGB values due to a faulty if/else statement.  
+Next implementation is going to be debugging further and more rigorous tets in death/RGB pressure
+as well as optimizing for computational efficiency in various files and
 working to impliment better mitosis dynamics. 
