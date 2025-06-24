@@ -10,7 +10,7 @@ tStart = tic;
 global NumCells dt lbox vels_med eta nu neighborWeight k R_boundary Cell_radius ...
     c_rec c_lig adh runTime vels_std Field xphi yphi w ExMax EyMax mu ...
     critRad Ccyclet critical_pressure daughter_noise Cell_std death_rate ...
-    death_pressure
+    death_pressure chill
 
 %% Domain Parameters
 NumCells = 40;                         % number of cells in simulation
@@ -18,12 +18,13 @@ vels_med = 0.15;                         % initial velocity param center point
 vels_std = 0.03;                        % standard deviation of velocity initialization
 critRad = 1.2;                            % critical radius for mitosis
 Ccyclet = 100;                          % benchmark cell cycle time
-death_rate = 10e-20;                    % Cell death rate
-death_pressure = 0.15;                   % Pressure required for apoptosis
+death_rate = 1e-20;                    % Cell death rate
+death_pressure = 0.35;                   % Pressure required for apoptosis
 critical_pressure = 0.05;               % Critical presssure for dormancy
 runTime = 600;                           % total runTime of simulation
 lbox = 150;                             % size of the box particles are confined to
 R_boundary = lbox/8;                    % Sample domain size for cells to begin
+chill = 15;                             % chill time to suppress cell death
 
 %% Cell-cell parameters
 Cell_radius = 1;                        % fixed cell radius
@@ -54,7 +55,7 @@ yphi = 0;                               % y field offset
 dt = 1;                                 % time step
 time_control = (1:runTime)';            % time axis for plotting
 R = zeros(NumCells, 1);                    % Red scale for plotting
-G = zeros(NumCells, 1);                 % Green scale for plotting
+G = ones(NumCells, 1);                 % Green scale for plotting
 B = ones(NumCells, 1);                     % Blue scale for plotting
 
 %% Initialization of Variables
@@ -127,7 +128,6 @@ for time = 1:runTime
 
     [Cradius,x, y, vx, vy, vel_ang, x_time, y_time, theta_time, RadTracker, R, G, B, Pressure, exempt] = RadGrowth(Cradius, Pressure, x, ...
         y, vel_ang, vx, vy, x_time, y_time, time, theta_time, RadTracker, R, G, B, exempt);
-
 
     %% Live Simulation visualization plot
     %     % commented out; code runs a live simulation of program

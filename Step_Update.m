@@ -21,9 +21,7 @@ yf = y0;
 for i = 1:NumCells
     %%  Position Update
     %       Equation of position
-    %       xf = x0 + (vx0)*dt
-    %       yf = y0 + (vy0)*dt
-
+    
     if(exempt(i,1))
         xf(i,1) = x0(i,1) + (vx0(i,1) )*dt;
         yf(i,1) = y0(i,1) + (vy0(i,1) )*dt;

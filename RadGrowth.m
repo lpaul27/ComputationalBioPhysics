@@ -3,7 +3,7 @@ function [Cradius,x, y, vx, vy, vel_ang, x_time, y_time, theta_time, RadTracker,
 % Radial growth of a cell with each iteration
 
 global dt NumCells critRad Ccyclet critical_pressure vels_med daughter_noise ...
-    death_pressure death_rate
+    death_pressure death_rate chill runTime
 
 Cradius = Cradius0;
 growth_rate = (pi * critRad^2) / (2* Ccyclet);
@@ -27,7 +27,7 @@ for i = 1:NumCells
         Cradius(NumCells, 1) = Cradius(i,1) ./ sqrt(2);
         Cradius(i,1) = Cradius(i,1) ./ sqrt(2);
 
-        % Update Plotting parameters
+        % Update Plotting parameters (Cell division)
         Pressure(NumCells, 1) = 0;
         exempt(NumCells , 1) = 1;
         R(NumCells,1) = 0;
@@ -42,20 +42,22 @@ for i = 1:NumCells
     end
     
     %% Check for cell death
-    if((Pressure(i,1) >= death_pressure || rand() < death_rate) && exempt(i,1))
+    tmp = rand();
+    if((Pressure(i,1) >= death_pressure || tmp < death_rate) && exempt(i,1) && time > chill)
         exempt(i,1) = 0;
-        vx(NumCells, 1) = 0;
-        vy(NumCells, 1) = 0;
-        vel_ang(NumCells, 1) = atan2(vy(NumCells,1), vx(NumCells,1));
+        vx(i, 1) = 0;
+        vy(i, 1) = 0;
+        vel_ang(i, 1) = atan2(vy(i,1), vx(i,1));
         Pressure(i,1) = 0;
         % Set color to pure red for a dead cell
-        R(NumCells,1) = 1;
-        G(NumCells,1) = 0;
-        B(NumCells, 1) = 0;
-    else
-        R(i,1) =  Pressure(i,1) ./ (death_pressure + Pressure(i,1));
-        G(i,1) =  G(i,1) .* (1- Pressure(i,1)./ (death_pressure));
-        B(i,1) = B(i,1) .* (1- (Pressure(i,1) ./ (death_pressure)));
+        R(i,1) = 0;
+        G(i,1) = 0;
+        B(i, 1) = 0;
+    end
+    if(exempt(i,1))
+        B(i,1) = 1 - (Pressure(i,1) ./ (critical_pressure + Pressure(i,1)));
+        G(i,1) = B(i,1);
+        R(i,1) = 1 - B(i,1);
     end
 end
 end
