@@ -1,7 +1,7 @@
 % Main file for cell movement in an AC field
 clear vars;
 close all;
-steps = 1000;
+steps = 10000;
 %% Parameters for model
 % All parameters for model across all functions
 mitotic_rate = zeros(steps, 1);
@@ -42,7 +42,7 @@ adh = 1e-4;                                % adhesive coefficient
 
 %% Cell-Field parameters
 Field = 0;                              % Signals to time varying fields that field is on if 1
-ExMax = 0.0007*(j - 1);                % x field max
+ExMax = 0.00007*(j - 1);                % x field max
 EyMax = 0;                              % y field max
 
 % Sinusoidal parameters
@@ -164,7 +164,7 @@ est_finish = (est / j) * (steps - j);
 fprintf('Estimated time left: %f \n', est_finish)
 end
 figure
-scatter(((1:steps).*0.0007), mitotic_rate, 'filled')
+scatter(((1:steps).*0.00007), mitotic_rate, 'filled')
 xlabel('Field Strength (a.u)');  ylabel('Mitosis Amount (Cells)');
 
 
