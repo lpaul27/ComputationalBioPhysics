@@ -1,7 +1,7 @@
 % Main file for cell movement in an AC field
 clear vars;
 close all;
-steps = 100;
+steps = 1000;
 %% Parameters for model
 % All parameters for model across all functions
 mitotic_rate = zeros(steps, 1);
@@ -14,11 +14,11 @@ for j = 1:steps
     tStart = tic;
 
 %% Domain Parameters
-NumCells = 500;                         % number of cells in simulation
+NumCells = 150;                         % number of cells in simulation
 vels_med = 0.15;                        % initial velocity param center point
 vels_std = 0.03;                        % standard deviation of velocity initialization
 critRad = 1.2;                          % critical radius for mitosis
-Ccyclet = 0.1;                          % benchmark cell cycle time
+Ccyclet = 1;                          % benchmark cell cycle time
 death_rate = 1e-20;                     % Cell death rate
 death_pressure = 0.35;                  % Pressure required for apoptosis
 critical_pressure = 0.05;               % Critical presssure for dormancy
@@ -42,7 +42,7 @@ adh = 1e-4;                                % adhesive coefficient
 
 %% Cell-Field parameters
 Field = 0;                              % Signals to time varying fields that field is on if 1
-ExMax = 0.003*(j - 1);                % x field max
+ExMax = 0.0007*(j - 1);                % x field max
 EyMax = 0;                              % y field max
 
 % Sinusoidal parameters
@@ -72,14 +72,14 @@ exempt = ones(NumCells, 1);             % cell death logical
 %% Plotting Parameters
 % Parameters for live simulation visualization
 
-cell=figure;
-cell.WindowState = 'maximized';
-axis([0 lbox 0 lbox])
-a = get(gca,'XTickLabel');
-set(gca,'XTickLabel',a,'fontsize',12);
-axis('square')
-hold on
-skip_points = 14;
+% cell=figure;
+% cell.WindowState = 'maximized';
+% axis([0 lbox 0 lbox])
+% a = get(gca,'XTickLabel');
+% set(gca,'XTickLabel',a,'fontsize',12);
+% axis('square')
+% hold on
+% skip_points = 14;
 
 %% Initialization of System
 % Based on Monte Carlo initialization
@@ -132,40 +132,40 @@ for time = 1:runTime
 
     %% Live Simulation visualization plot
     %     % commented out; code runs a live simulation of program
-    scale_efield = 2;
-    x_efield_plot = reshape(X,length(X)^2,1);
-    y_efield_plot = reshape(Y,length(Y)^2,1);
-    u_efield_plot = reshape(u,length(u)^2,1);
-    v_efield_plot = reshape(v,length(v)^2,1);
-    v_result = [vx vy];
-    v_result_norm = sqrt(diag(v_result * v_result'));
-
-    cla
-    set(gcf,'doublebuffer','on')
-    hold on;
-    skip_nth =14;
-    quiver(x_efield_plot(1:skip_nth:end),y_efield_plot(1:skip_nth:end),scale_efield*u_efield_plot(1:skip_nth:end),scale_efield*v_efield_plot(1:skip_nth:end), 'Color', [1, 0., 0],   'LineWidth', 1., 'MaxHeadSize', 0.9);
-    hold on;
-    quiver(x,y,vx./(0.5*v_result_norm),vy./(0.5*v_result_norm), 'Color',[0, 0, 0], 'MarkerSize', 10, 'LineWidth', 1.5,  'AutoScale', 'off') ;
-    hold on;
-    for i = 1:NumCells
-        circles(x(i), y(i), Cradius(i), 'facecolor', [R(i), G(i), B(i)]);
-    end
-    hold on;
-    drawnow
-    hold on
+%     scale_efield = 2;
+%     x_efield_plot = reshape(X,length(X)^2,1);
+%     y_efield_plot = reshape(Y,length(Y)^2,1);
+%     u_efield_plot = reshape(u,length(u)^2,1);
+%     v_efield_plot = reshape(v,length(v)^2,1);
+%     v_result = [vx vy];
+%     v_result_norm = sqrt(diag(v_result * v_result'));
+% 
+%     cla
+%     set(gcf,'doublebuffer','on')
+%     hold on;
+%     skip_nth =14;
+%     quiver(x_efield_plot(1:skip_nth:end),y_efield_plot(1:skip_nth:end),scale_efield*u_efield_plot(1:skip_nth:end),scale_efield*v_efield_plot(1:skip_nth:end), 'Color', [1, 0., 0],   'LineWidth', 1., 'MaxHeadSize', 0.9);
+%     hold on;
+%     quiver(x,y,vx./(0.5*v_result_norm),vy./(0.5*v_result_norm), 'Color',[0, 0, 0], 'MarkerSize', 10, 'LineWidth', 1.5,  'AutoScale', 'off') ;
+%     hold on;
+%     for i = 1:NumCells
+%         circles(x(i), y(i), Cradius(i), 'facecolor', [R(i), G(i), B(i)]);
+%     end
+%     hold on;
+%     drawnow
+%     hold on
 end % end time loop
 
 %% Function call for static plot
 %Visualize(x_time,y_time, theta_time, time_control);
-
 est = toc(tStart);
-mitotic_rate(j,1) = NumCells - 50;
-est_finish = est * runTime - j;
+mitotic_rate(j,1) = NumCells - 150;
+est_finish = (est / j) * (steps - j); 
 fprintf('Estimated time left: %f \n', est_finish)
 end
-scatter((1:steps), mitotic_rate)
-
+figure
+scatter(((1:steps).*0.0007), mitotic_rate, 'filled')
+xlabel('Field Strength (a.u)');  ylabel('Mitosis Amount (Cells)');
 
 
 
