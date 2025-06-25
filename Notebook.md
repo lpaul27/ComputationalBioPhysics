@@ -19,3 +19,7 @@ RGB values due to a faulty if/else statement.
 Next implementation is going to be debugging further and more rigorous tets in death/RGB pressure
 as well as optimizing for computational efficiency in various files and
 working to impliment better mitosis dynamics. 
+
+**6-25-2025**
+General Debugging; ready for a larger simulation to run with all other types of parameters experiencing no bugs.  
+Planning to pursue accurate, large amounts of data and plots with simulation.
